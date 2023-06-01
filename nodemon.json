@@ -1,0 +1,6 @@
+{
+  "ignore": ["*.json", "public/*"],
+  "watch": ["./"],
+  "exec": "npm run swagger && node ./src/index.js",
+  "ext": "js"
+}

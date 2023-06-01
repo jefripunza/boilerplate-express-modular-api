@@ -1,0 +1,152 @@
+name: 🚀 Deploy App...
+
+# Controls when the workflow will run
+on: # master = production
+  # Triggers the workflow on push or pull request events but only for the "master" branch
+  push:
+    branches: ["development"] # master, development, staging
+  pull_request:
+    branches: ["development"] # master, development, staging
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+env:
+  SNAPSHOT_VERSION: ${{ format('{0}-SNAPSHOT', github.event.number) }}
+
+jobs:
+  app-deploy:
+    name: 🚚 BackEnd (Dev)
+    runs-on: server-dell-jefri
+    steps:
+      - name: Set Time Zone, Get start datetime & Template Top
+        run: |
+          TZ=Asia/Jakarta
+          echo "start_date=$(date +"%Y-%m-%d %T")" >> ${GITHUB_ENV}
+          echo "template_top=*➥ REPORTER (${{ github.run_number }})*\n#GIT...\nREPO: *${{ github.event.repository.name }}*\nBRANCH: *${{ github.ref_name }}*\nCOMMIT: *${{ github.event.head_commit.message }}*\n#USER...\nOWNER: *${{ github.repository_owner }}*\nPUSHER: *${{ github.event.pusher.name }}*\n#SERVER...\nRUNNER: *${{ runner.name }} (${{ runner.os }} ${{ runner.arch }})*\n" >> ${GITHUB_ENV}
+          echo "template_bottom=Please check https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}" >> ${GITHUB_ENV}
+
+      - name: Send start report
+        run: |
+          curl --insecure --location '${{ secrets.REPORT_TARGET_URL }}' \
+            --header 'Content-Type: application/json' \
+            --header 'Authorization: Bearer ${{ secrets.REPORT_BEARER_TOKEN }}' \
+            --data-raw "{
+              \"phone_number\": \"${{ secrets.REPORT_PHONE_NUMBER }}\",
+              \"message\": \"${{ env.template_top }}STATUS: *STARING* 🛫📡\nTIME: *${{ env.start_date }}*\"
+            }"
+
+      # ----------------------------------------------------------------------
+      # ----------------------------------------------------------------------
+      # ----------------------------------------------------------------------
+
+      - name: 🎉 Get latest code
+        uses: actions/checkout@v2
+
+      - name: Rename ENV...
+        run: |
+          mv .env.example .env
+
+      # ----------------------------------------------------------------------
+      # ----------------------------------------------------------------------
+      # ----------------------------------------------------------------------
+
+      - name: Manual Replace
+        run: |
+          sed -i 's#SECRET_KEY=#SECRET_KEY=${{ secrets.ENV_SECRET_KEY }}#g' .env
+
+          sed -i 's#JWT_SECRET_TOKEN=#JWT_SECRET_TOKEN=${{ secrets.ENV_JWT_SECRET_TOKEN }}#g' .env
+
+          sed -i 's#DB_TYPE=#DB_TYPE=${{ secrets.ENV_DB_TYPE }}#g' .env
+          sed -i 's#DB_HOST=#DB_HOST=${{ secrets.ENV_DB_HOST }}#g' .env
+          sed -i 's#DB_PORT=#DB_PORT=${{ secrets.ENV_DB_PORT }}#g' .env
+          sed -i 's#DB_USER=#DB_USER=${{ secrets.ENV_DB_USER }}#g' .env
+          sed -i 's#DB_PASS=#DB_PASS=${{ secrets.ENV_DB_PASS }}#g' .env
+          sed -i 's#DB_NAME=#DB_NAME=${{ secrets.ENV_DB_NAME }}#g' .env
+
+          sed -i 's#localhost:${PORT}#${{ secrets.ENV_HOST_SWAGGER }}#g' swagger.js
+
+      # ----------------------------------------------------------------------
+      # ----------------------------------------------------------------------
+      # ----------------------------------------------------------------------
+
+      # - name: Test Error
+      #   run: |
+      #     anu
+
+      - name: 📡 Docker Compose...
+        run: |
+          docker-compose pull
+          docker-compose up --force-recreate --build -d
+          docker image prune -f
+
+      # ----------------------------------------------------------------------
+      # ----------------------------------------------------------------------
+      # ----------------------------------------------------------------------
+
+      - name: Get end datetime
+        if: success() || failure()
+        run: |
+          echo "end_date=$(date +"%Y-%m-%d %T")" >> ${GITHUB_ENV}
+
+      # If there is a success, send a report
+      - name: Send success report
+        if: success()
+        run: |
+          curl --insecure --location '${{ secrets.REPORT_TARGET_URL }}' \
+            --header 'Content-Type: application/json' \
+            --header 'Authorization: Bearer ${{ secrets.REPORT_BEARER_TOKEN }}' \
+            --data-raw "{
+              \"phone_number\": \"${{ secrets.REPORT_PHONE_NUMBER }}\",
+              \"message\": \"${{ env.template_top }}STATUS: *DEPLOYED* ✈️✅\nTIME: *${{ env.end_date }}*\"
+            }"
+      # If there is a failure, send a report
+      - name: Send failure report
+        if: failure()
+        run: |
+          curl --insecure --location '${{ secrets.REPORT_TARGET_URL }}' \
+            --header 'Content-Type: application/json' \
+            --header 'Authorization: Bearer ${{ secrets.REPORT_BEARER_TOKEN }}' \
+            --data-raw "{
+              \"phone_number\": \"${{ secrets.REPORT_PHONE_NUMBER }}\",
+              \"message\": \"${{ env.template_top }}STATUS: *FAILURE* 🛬❌\nTIME: *${{ env.end_date }}*\n\n${{ env.template_bottom }}\"
+            }"
+      # If there is a cancelled, send a report
+      - name: Send cancelled report
+        if: cancelled()
+        run: |
+          curl --insecure --location '${{ secrets.REPORT_TARGET_URL }}' \
+            --header 'Content-Type: application/json' \
+            --header 'Authorization: Bearer ${{ secrets.REPORT_BEARER_TOKEN }}' \
+            --data-raw "{
+              \"phone_number\": \"${{ secrets.REPORT_PHONE_NUMBER }}\",
+              \"message\": \"${{ env.template_top }}STATUS: *CANCEL* 🛬⛔\nTIME: *${{ env.end_date }}*\n\n${{ env.template_bottom }}\"
+            }"
+
+      # ----------------------------------------------------------------------
+      # ----------------------------------------------------------------------
+      # ----------------------------------------------------------------------
+
+      - name: Dump GitHub context
+        if: success() || failure() || cancelled()
+        id: github_context_step
+        run: echo '${{ toJSON(github) }}'
+      - name: Dump job context
+        if: success() || failure() || cancelled()
+        run: echo '${{ toJSON(job) }}'
+      - name: Dump steps context
+        if: success() || failure() || cancelled()
+        run: echo '${{ toJSON(steps) }}'
+      - name: Dump runner context
+        if: success() || failure() || cancelled()
+        run: echo '${{ toJSON(runner) }}'
+      - name: Dump strategy context
+        if: success() || failure() || cancelled()
+        run: echo '${{ toJSON(strategy) }}'
+      - name: Dump matrix context
+        if: success() || failure() || cancelled()
+        run: echo '${{ toJSON(matrix) }}'
+
+      # ----------------------------------------------------------------------
+      # ----------------------------------------------------------------------
+      # ----------------------------------------------------------------------

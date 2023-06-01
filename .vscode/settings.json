@@ -1,0 +1,32 @@
+{
+  "terminal.integrated.defaultProfile.windows": "Git Bash",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": false
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": "darkriszty.markdown-table-prettify"
+  },
+
+  "workbench.iconTheme": "material-icon-theme",
+  "git.autofetch": true,
+  "window.zoomLevel": -1,
+  "eslint.codeActionsOnSave.rules": null,
+  "eslint.format.enable": true,
+  "editor.tabSize": 2,
+  "editor.trimAutoWhitespace": true,
+  "explorer.confirmDelete": false,
+  "explorer.confirmDragAndDrop": false,
+  "diffEditor.ignoreTrimWhitespace": true,
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "go.toolsManagement.autoUpdate": true,
+  "files.associations": {
+    ".env*": "properties",
+    ".rabbitmq*": "properties"
+  }
+}

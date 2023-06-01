@@ -1,0 +1,10 @@
+node_modules
+
+assets/public/app
+assets/public/image
+assets/strict/ktp
+assets/strict/selfie
+
+.env
+swagger.json
+test.js
