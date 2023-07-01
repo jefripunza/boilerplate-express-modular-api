@@ -23,17 +23,19 @@ jobs:
         run: |
           TZ=Asia/Jakarta
           echo "start_date=$(date +"%Y-%m-%d %T")" >> ${GITHUB_ENV}
-          echo "template_top=*➥ REPORTER (${{ github.run_number }})*\n#GIT...\nREPO: *${{ github.event.repository.name }}*\nBRANCH: *${{ github.ref_name }}*\nCOMMIT: *${{ github.event.head_commit.message }}*\n#USER...\nOWNER: *${{ github.repository_owner }}*\nPUSHER: *${{ github.event.pusher.name }}*\n#SERVER...\nRUNNER: *${{ runner.name }} (${{ runner.os }} ${{ runner.arch }})*\n" >> ${GITHUB_ENV}
+          echo "start_time=$(date +"%s")" >> ${GITHUB_ENV}
+          echo "template_top=➥ REPORTER (${{ github.run_number }})\n>>GIT...\nREPO: ${{ github.event.repository.name }}\nBRANCH: ${{ github.ref_name }}\nCOMMIT: ${{ github.event.head_commit.message }}\n>>USER...\nOWNER: ${{ github.repository_owner }}\nPUSHER: ${{ github.event.pusher.name }}\n>>SERVER...\nRUNNER: ${{ runner.name }} (${{ runner.os }} ${{ runner.arch }})\n" >> ${GITHUB_ENV}
           echo "template_bottom=Please check https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}" >> ${GITHUB_ENV}
+          echo "status=STARING 🛫📡" >> ${GITHUB_ENV}
 
       - name: Send start report
         run: |
-          curl --insecure --location '${{ secrets.REPORT_TARGET_URL }}' \
+          curl --insecure --location '${{ secrets.REPORT_GIT_URL }}' \
             --header 'Content-Type: application/json' \
             --header 'Authorization: Bearer ${{ secrets.REPORT_BEARER_TOKEN }}' \
             --data-raw "{
-              \"phone_number\": \"${{ secrets.REPORT_PHONE_NUMBER }}\",
-              \"message\": \"${{ env.template_top }}STATUS: *STARING* 🛫📡\nTIME: *${{ env.start_date }}*\"
+              \"group_id\": \"${{ secrets.REPORT_GROUP_ID }}\",
+              \"message\": \"${{ env.template_top }}STATUS: ${{ env.status }}\nTIME: ${{ env.start_date }}\"
             }"
 
       # ----------------------------------------------------------------------
@@ -64,15 +66,16 @@ jobs:
           sed -i 's#DB_PASS=#DB_PASS=${{ secrets.ENV_DB_PASS }}#g' .env
           sed -i 's#DB_NAME=#DB_NAME=${{ secrets.ENV_DB_NAME }}#g' .env
 
+          sed -i 's#REPORT_ERROR_URL=#REPORT_ERROR_URL=${{ secrets.REPORT_ERROR_URL }}#g' .env
+          sed -i 's#REPORT_BUSINESS_URL=#REPORT_BUSINESS_URL=${{ secrets.REPORT_BUSINESS_URL }}#g' .env
+          sed -i 's#REPORT_BEARER_TOKEN=#REPORT_BEARER_TOKEN=${{ secrets.REPORT_BEARER_TOKEN }}#g' .env
+          sed -i 's#REPORT_GROUP_ID=#REPORT_GROUP_ID=${{ secrets.REPORT_GROUP_ID }}#g' .env
+
           sed -i 's#localhost:${PORT}#${{ secrets.ENV_HOST_SWAGGER }}#g' swagger.js
 
       # ----------------------------------------------------------------------
       # ----------------------------------------------------------------------
       # ----------------------------------------------------------------------
-
-      # - name: Test Error
-      #   run: |
-      #     anu
 
       - name: 📡 Docker Compose...
         run: |
@@ -84,43 +87,45 @@ jobs:
       # ----------------------------------------------------------------------
       # ----------------------------------------------------------------------
 
-      - name: Get end datetime
-        if: success() || failure()
+      - name: Get end datetime & duration
+        if: success() || failure() || cancelled()
         run: |
-          echo "end_date=$(date +"%Y-%m-%d %T")" >> ${GITHUB_ENV}
+          echo "end_date=$(date +'%Y-%m-%d %T')" >> $GITHUB_ENV
+          end_time=$(date +'%s')
+          start_time=${{ env.start_time }}
+          duration_seconds=$((end_time - start_time))
+          minutes=$((duration_seconds / 60))
+          seconds=$((duration_seconds % 60))
+          if (( duration_seconds >= 60 )); then
+            echo "formatted_duration=${minutes} min ${seconds} sec" >> $GITHUB_ENV
+          else
+            echo "formatted_duration=${seconds} sec" >> $GITHUB_ENV
+          fi
 
-      # If there is a success, send a report
+      # If there status is success / failure / cancelled
       - name: Send success report
         if: success()
         run: |
-          curl --insecure --location '${{ secrets.REPORT_TARGET_URL }}' \
-            --header 'Content-Type: application/json' \
-            --header 'Authorization: Bearer ${{ secrets.REPORT_BEARER_TOKEN }}' \
-            --data-raw "{
-              \"phone_number\": \"${{ secrets.REPORT_PHONE_NUMBER }}\",
-              \"message\": \"${{ env.template_top }}STATUS: *DEPLOYED* ✈️✅\nTIME: *${{ env.end_date }}*\"
-            }"
-      # If there is a failure, send a report
+          echo "status=DEPLOYED ✈️✅" >> ${GITHUB_ENV}
       - name: Send failure report
         if: failure()
         run: |
-          curl --insecure --location '${{ secrets.REPORT_TARGET_URL }}' \
-            --header 'Content-Type: application/json' \
-            --header 'Authorization: Bearer ${{ secrets.REPORT_BEARER_TOKEN }}' \
-            --data-raw "{
-              \"phone_number\": \"${{ secrets.REPORT_PHONE_NUMBER }}\",
-              \"message\": \"${{ env.template_top }}STATUS: *FAILURE* 🛬❌\nTIME: *${{ env.end_date }}*\n\n${{ env.template_bottom }}\"
-            }"
-      # If there is a cancelled, send a report
+          echo "status=FAILURE 🛬❌" >> ${GITHUB_ENV}
       - name: Send cancelled report
         if: cancelled()
         run: |
-          curl --insecure --location '${{ secrets.REPORT_TARGET_URL }}' \
+          echo "status=CANCEL 🛬⛔" >> ${GITHUB_ENV}
+
+      # send a report
+      - name: Get end datetime
+        if: success() || failure() || cancelled()
+        run: |
+          curl --insecure --location '${{ secrets.REPORT_GIT_URL }}' \
             --header 'Content-Type: application/json' \
             --header 'Authorization: Bearer ${{ secrets.REPORT_BEARER_TOKEN }}' \
             --data-raw "{
-              \"phone_number\": \"${{ secrets.REPORT_PHONE_NUMBER }}\",
-              \"message\": \"${{ env.template_top }}STATUS: *CANCEL* 🛬⛔\nTIME: *${{ env.end_date }}*\n\n${{ env.template_bottom }}\"
+              \"group_id\": \"${{ secrets.REPORT_GROUP_ID }}\",
+              \"message\": \"${{ env.template_top }}STATUS: ${{ env.status }}\nTIME: ${{ env.end_date }}\nDuration: ${{ env.formatted_duration }}\"
             }"
 
       # ----------------------------------------------------------------------

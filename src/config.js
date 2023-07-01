@@ -38,6 +38,12 @@ exports.SECRET_KEY = process.env.SECRET_KEY;
 exports.JWT_SECRET_TOKEN = process.env.JWT_SECRET_TOKEN;
 exports.JWT_EXPIRED_TOKEN = process.env.JWT_EXPIRED_TOKEN;
 
+// Reporter
+exports.REPORT_ERROR_URL = process.env.REPORT_ERROR_URL;
+exports.REPORT_BUSINESS_URL = process.env.REPORT_BUSINESS_URL;
+exports.REPORT_BEARER_TOKEN = process.env.REPORT_BEARER_TOKEN;
+exports.REPORT_GROUP_ID = process.env.REPORT_GROUP_ID;
+
 // File Uploader
 exports.max_file_upload_size = 100; // MB
 exports.max_upload_image = 3; // MB
