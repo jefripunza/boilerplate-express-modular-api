@@ -5,7 +5,7 @@ const { project_root } = require("./paths");
 require("dotenv").config({
   path: path.join(project_root, ".env"),
 });
-exports.NODE_ENV = process.env.NODE_ENV;
+exports.NODE_ENV = process.env.NODE_ENV || "local";
 exports.isProduction = String(this.NODE_ENV).includes("production");
 exports.isDevelopment = String(this.NODE_ENV).includes("development");
 exports.isLocal = ![this.isDevelopment, this.isProduction].includes(true);
