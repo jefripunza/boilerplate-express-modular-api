@@ -1,40 +1,36 @@
-const fs = require("fs");
-const path = require("path");
+/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable no-undef */
 
-const {
-  APP_NAME,
-  APP_VERSION,
-  APP_DESCRIPTION,
-  APP_SCHEMES,
-  CONTACT_NAME,
-  CONTACT_EMAIL,
+require('ts-node/register');
 
-  PORT,
-} = require("./src/config");
-const { modules_dir, swagger_json_file } = require("./src/paths");
+const fs = require('fs');
+const path = require('path');
 
-const swaggerAutogen = require("swagger-autogen")();
+const { Swagger, Server } = require('./src/environments');
+const { modules_dir, swagger_json_file } = require('./src/paths');
+
+const swaggerAutogen = require('swagger-autogen')();
 
 const doc = {
   info: {
-    title: APP_NAME,
-    version: APP_VERSION,
-    description: APP_DESCRIPTION,
-    termsOfService: "http://swagger.io/terms/",
+    title: Swagger.APP_NAME,
+    version: Swagger.APP_VERSION,
+    description: Swagger.APP_DESCRIPTION,
+    termsOfService: 'http://swagger.io/terms/',
     contact: {
-      name: CONTACT_NAME,
-      email: CONTACT_EMAIL,
+      name: Swagger.CONTACT_NAME,
+      email: Swagger.CONTACT_EMAIL
     },
     license: {
-      name: "MIT",
-      url: "https://opensource.org/licenses/MIT",
-    },
+      name: 'MIT',
+      url: 'https://opensource.org/licenses/MIT'
+    }
   },
-  host: `localhost:${PORT}`,
-  basePath: "/",
-  schemes: APP_SCHEMES,
-  consumes: ["application/json"],
-  produces: ["application/json"],
+  host: `localhost:${Server.PORT}`,
+  basePath: '/',
+  schemes: Swagger.APP_SCHEMES,
+  consumes: ['application/json'],
+  produces: ['application/json'],
   tags: [
     // {
     //   name: "Auth",
@@ -42,24 +38,23 @@ const doc = {
   ],
   securityDefinitions: {
     Bearer: {
-      type: "apiKey",
-      name: "Authorization",
-      in: "header",
-      description:
-        "Enter your bearer token in the format **Bearer &lt;token>**",
-    },
+      type: 'apiKey',
+      name: 'Authorization',
+      in: 'header',
+      description: 'Enter your bearer token in the format **Bearer &lt;token>**'
+    }
   },
   definitions: {
     only_message: {
-      message: "string",
-    },
+      message: 'string'
+    }
   },
-  components: {}, // by default: empty object (OpenAPI 3.x)
+  components: {} // by default: empty object (OpenAPI 3.x)
 };
 
 const endpointsFiles = fs
   .readdirSync(modules_dir)
-  .filter((filename) => filename !== "index.js")
+  .filter((filename) => filename !== 'index.js')
   .map((filename) => path.join(modules_dir, filename));
 
 swaggerAutogen(swagger_json_file, endpointsFiles, doc);

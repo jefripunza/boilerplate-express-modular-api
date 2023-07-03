@@ -1,9 +1,8 @@
-node_modules
+/node_modules
+/build
+/dist
 
-assets/public/app
-assets/public/image
-assets/strict/ktp
-assets/strict/selfie
+/assets
 
 .env
 swagger.json

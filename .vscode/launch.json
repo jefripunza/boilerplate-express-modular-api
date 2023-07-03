@@ -7,15 +7,17 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Launch Program",
-      "outputCapture": "std",
-      "trace": true,
-      "sourceMaps": true,
+      "name": "Debug Typescript",
       "skipFiles": ["<node_internals>/**"],
-      "program": "${workspaceFolder}/src/index.ts",
-      "preLaunchTask": "tsc: build - tsconfig.json",
-      "runtimeArgs": ["-r", "ts-node/register"],
-      "outFiles": ["${workspaceFolder}/dist/**/*.js"]
+      "program": "${workspaceFolder}\\src\\index.ts",
+      "runtimeArgs": [
+        "-r",
+        "ts-node/register",
+        "-r",
+        "tsconfig-paths/register"
+      ],
+      "console": "integratedTerminal",
+      "outFiles": ["${workspaceFolder}/**/*.js"]
     }
   ]
 }

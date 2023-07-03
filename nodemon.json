@@ -1,6 +1,6 @@
 {
   "ignore": ["*.json", "public/*"],
-  "watch": ["./"],
-  "exec": "npm run swagger && node ./src/index.js",
-  "ext": "js"
+  "watch": ["src"],
+  "ext": ".ts,.js",
+  "exec": "npm run swagger && npx ts-node ./src/index.ts"
 }

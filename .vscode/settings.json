@@ -5,13 +5,17 @@
   "[json]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "[javascript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.formatOnSave": false
-  },
   "[markdown]": {
     "editor.defaultFormatter": "darkriszty.markdown-table-prettify"
   },
+
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "editor.formatOnSave": true,
 
   "workbench.iconTheme": "material-icon-theme",
   "git.autofetch": true,
