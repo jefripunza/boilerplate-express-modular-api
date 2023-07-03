@@ -15,7 +15,7 @@
     "table:build": "npx knex migrate:latest",
     "table:up": "npx knex migrate:up",
     "table:down": "npx knex migrate:down",
-    "swagger": "node ./swagger.js",
+    "swagger": "npx ts-node ./swagger.ts",
     "build": "rimraf ./build && npx tsc",
     "start:only": "node build/index.js",
     "start": "npm run build && npm run start:only",

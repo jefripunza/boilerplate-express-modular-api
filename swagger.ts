@@ -1,15 +1,14 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable no-undef */
 
-require('ts-node/register');
+import * as fs from 'fs';
+import * as path from 'path';
+import SwagInit from 'swagger-autogen';
 
-const fs = require('fs');
-const path = require('path');
+import { Swagger, Server } from './src/environments';
+import { modules_dir, swagger_json_file } from './src/paths';
 
-const { Swagger, Server } = require('./src/environments');
-const { modules_dir, swagger_json_file } = require('./src/paths');
-
-const swaggerAutogen = require('swagger-autogen')();
+const swaggerAutogen = SwagInit();
 
 const doc = {
   info: {
