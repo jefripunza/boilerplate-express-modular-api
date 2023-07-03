@@ -3,7 +3,7 @@ import * as path from 'path';
 import http from 'http';
 import express from 'express';
 
-import { FileUploader } from '../config';
+import { FileUploader } from '../configs';
 import { Server } from '../environments';
 import { project_root, swagger_json_file, modules_dir } from '../paths';
 import * as random from '../helpers/random';

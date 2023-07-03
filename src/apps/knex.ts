@@ -1,6 +1,6 @@
 import knex, { Knex } from 'knex';
 
-import { Knex as KnexConfig } from '../config';
+import { Knex as KnexConfig } from '../configs';
 import {
   isArray,
   isObject,

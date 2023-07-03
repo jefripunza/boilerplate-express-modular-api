@@ -7,7 +7,7 @@ import { IRequestJoin } from '../contracts/request.contract';
 import * as User from '../models/repositories/user';
 import * as UserAddress from '../models/repositories/user_address';
 
-import { FileUploader } from '../config';
+import { FileUploader } from '../configs';
 import { user_dir } from '../paths';
 import { newNameUpload } from '../helpers/convert';
 

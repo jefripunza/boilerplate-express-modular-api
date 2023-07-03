@@ -1,5 +1,5 @@
 import { Database } from '../../apps/knex';
-import { tables, user_roles } from '../../config';
+import { tables, user_roles } from '../../configs';
 
 import * as encryption from '../../utils/encryption';
 
