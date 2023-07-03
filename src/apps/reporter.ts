@@ -39,4 +39,5 @@ export const StartLogging = () => {
       console.info({ error_send });
     }
   });
+  console.log(`✅ Logger is Ready...`);
 };

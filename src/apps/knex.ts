@@ -8,8 +8,6 @@ import {
   isDateFormat
 } from '../helpers/validation';
 
-import { IDynamicObject, IDataTable } from '../contracts/data.contract';
-
 const knexInstance = knex(KnexConfig.config);
 
 const DatabaseConnect = async (
@@ -19,12 +17,13 @@ const DatabaseConnect = async (
   knexInstance
     .raw('SELECT 1')
     .then(() => {
-      console.log('✈️ Database connected');
+      // eslint-disable-next-line no-console
+      console.info('✈️ Database connected');
       if (cb && typeof cb === 'function') cb();
     })
     .catch((e) => {
-      console.log('❌ Database not connected');
-      console.error(e);
+      // eslint-disable-next-line no-console
+      console.error('❌ Database not connected', e);
       process.exit(1);
     });
 };
@@ -162,6 +161,7 @@ class CustomQueryBuilder<T> {
       focus.date_range = column_set?.date_range ?? [];
 
       filters.forEach((filter) => {
+        // eslint-disable-next-line prefer-const
         let [column, value]: any = filter.split(':');
         if (focus.search.length > 0 && focus.search.includes(column)) {
           // ex: my love...
@@ -242,7 +242,7 @@ class CustomQueryBuilder<T> {
     if (per_page < 1) per_page = 1;
     if (page < 1) page = 1;
 
-    let offset = (page - 1) * per_page;
+    const offset = (page - 1) * per_page;
     return Promise.all([
       this.queryBuilder.clone().count('* as count').first(),
       this.queryBuilder
@@ -255,7 +255,7 @@ class CustomQueryBuilder<T> {
       /**
        * @type {{ data: any[], meta: { total_data: number, current_page: number, per_page: number, last_page: number, margin?: number[] } }}
        */
-      let pagination: any = {};
+      const pagination: any = {};
       pagination.data = rows;
       pagination.meta = {
         total_data: total.count,

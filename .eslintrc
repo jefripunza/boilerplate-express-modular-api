@@ -11,6 +11,7 @@
     "no-console": 1, // Remember, this means error!
     "@typescript-eslint/no-namespace": 0,
     "@typescript-eslint/no-explicit-any": 0,
-    "@typescript-eslint/ban-ts-comment": 0
+    "@typescript-eslint/ban-ts-comment": 0,
+    "no-useless-escape": 0
   }
 }

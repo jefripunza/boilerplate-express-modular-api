@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import { StatusCodes } from 'http-status-codes';
 import express, { Request, Response } from 'express';
 import { IRequestJoin } from '../contracts/request.contract';

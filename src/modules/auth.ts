@@ -2,14 +2,12 @@ import { StatusCodes } from 'http-status-codes';
 import express, { Request, Response } from 'express';
 import { IRequestJoin } from '../contracts/request.contract';
 
-import { user_roles } from '../configs';
-import { Server, OTP_EXPIRED_MINUTE } from '../environments';
+import { OTP_EXPIRED_MINUTE } from '../environments';
 
 import * as User from '../models/repositories/user';
 
 import * as random from '../helpers/random';
 import * as jwt from '../utils/jsonwebtoken';
-import * as encryption from '../utils/encryption';
 
 import token_validation from '../middlewares/token_validation';
 
