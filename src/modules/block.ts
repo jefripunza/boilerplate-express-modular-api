@@ -1,6 +1,7 @@
 import { StatusCodes } from 'http-status-codes';
 import express, { Response } from 'express';
 import { IRequestJoin } from '../contracts/request.contract';
+import * as reporter from '../apps/reporter';
 
 import * as Block from '../models/repositories/block';
 
@@ -16,9 +17,9 @@ const v1: any = express.Router();
 // =======================================================================
 
 app.get(
-  '/list',
-  token_validation,
-  only_superman,
+  '/paginate',
+  // token_validation,
+  // only_superman,
   async (req: IRequestJoin, res: Response) => {
     /**
       #swagger.path = '/api/block/list'
@@ -26,7 +27,7 @@ app.get(
       #swagger.summary = '(SuperAdmin)'
     */
 
-    const { search, show, page, sort_by, order_by, filter } = req.query;
+    const { search, show, page, sort_by, order_by, filter }: any = req.query;
 
     try {
       const paginate = await Block.paginate(
@@ -40,13 +41,12 @@ app.get(
 
       return res.json(paginate);
     } catch (error: any) {
-      // @ts-ignore
-      process.emit('uncaughtException', {
-        from: 'block/list',
-        message: error.message
+      reporter.sendErrorLog({
+        from: 'block/paginate',
+        error,
       });
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-        message: 'Internal Server Error!'
+        message: 'Internal Server Error!',
       });
     }
   }
@@ -66,7 +66,7 @@ app.post(
     const { identity, ip_address } = req.body;
     if (!(identity && ip_address)) {
       return res.status(400).json({
-        message: "body is'n complete!"
+        message: "body is'n complete!",
       });
     }
 
@@ -74,33 +74,32 @@ app.post(
       const isIdentityExist = await Block.whereIdentity(identity);
       if (isIdentityExist) {
         return res.status(400).json({
-          message: 'identity is exist!'
+          message: 'identity is exist!',
         });
       }
 
       const isIpAddressExist = await Block.whereIP(ip_address);
       if (isIpAddressExist) {
         return res.status(400).json({
-          message: 'ip_address is exist!'
+          message: 'ip_address is exist!',
         });
       }
 
       await Block.insert({
         identity,
-        ip_address
+        ip_address,
       });
 
       return res.json({
-        message: 'success add block'
+        message: 'success add block',
       });
     } catch (error: any) {
-      // @ts-ignore
-      process.emit('uncaughtException', {
+      reporter.sendErrorLog({
         from: 'block/new',
-        message: error.message
+        error,
       });
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-        message: 'Internal Server Error!'
+        message: 'Internal Server Error!',
       });
     }
   }
@@ -123,23 +122,22 @@ app.delete(
       const isBlockExist = await Block.isBlockExist(id_block);
       if (isBlockExist) {
         return res.status(400).json({
-          message: 'block id is not found!'
+          message: 'block id is not found!',
         });
       }
 
       await Block.remove(id_block);
 
       return res.json({
-        message: 'success un-block block'
+        message: 'success un-block block',
       });
     } catch (error: any) {
-      // @ts-ignore
-      process.emit('uncaughtException', {
+      reporter.sendErrorLog({
         from: 'block/delete',
-        message: error.message
+        error,
       });
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-        message: 'Internal Server Error!'
+        message: 'Internal Server Error!',
       });
     }
   }

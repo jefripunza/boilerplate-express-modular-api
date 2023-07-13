@@ -40,7 +40,7 @@ export const insert = async (data: ISchema) => {
 
     subdistrict_code: data.subdistrict_code,
     detail: data.detail,
-    is_use: data.is_use
+    is_use: data.is_use,
   });
 };
 export const update = async (
@@ -53,14 +53,14 @@ export const update = async (
     .where('id', id_user_address)
     .update({
       subdistrict_code: data.subdistrict_code,
-      detail: data.detail
+      detail: data.detail,
     });
 };
 
 export const changeMain = async (id_user: number, id_user_address: number) => {
   // reset
   await Database(tables.user_address).where('id_user', id_user).update({
-    is_use: false
+    is_use: false,
   });
 
   // focus
@@ -68,7 +68,7 @@ export const changeMain = async (id_user: number, id_user_address: number) => {
     .where('id_user', id_user)
     .where('id', id_user_address)
     .update({
-      is_use: true
+      is_use: true,
     });
 };
 export const remove = async (id_user: number, id_user_address: number) => {

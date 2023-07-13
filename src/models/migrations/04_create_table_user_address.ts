@@ -3,7 +3,7 @@ import { Knex } from 'knex';
 import { tables } from '../../configs';
 
 export async function up(knex: Knex): Promise<void> {
-  return knex.schema.createTable(tables.user_address, function (table) {
+  await knex.schema.createTable(tables.user_address, function (table) {
     table.increments();
 
     table
@@ -26,5 +26,5 @@ export async function up(knex: Knex): Promise<void> {
 }
 
 export async function down(knex: Knex): Promise<void> {
-  return knex.schema.dropTable(tables.user_address);
+  await knex.schema.dropTable(tables.user_address);
 }

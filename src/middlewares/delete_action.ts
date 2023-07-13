@@ -9,14 +9,14 @@ export default async (req: IRequestJoin, res: Response, next: NextFunction) => {
 
   if (!password) {
     return res.status(400).json({
-      message: 'password require!'
+      message: 'password require!',
     });
   }
 
   const isUserMatch = await User.findByPasswordAndID(id_user, password);
   if (!isUserMatch) {
     return res.status(401).json({
-      message: 'wrong password!'
+      message: 'wrong password!',
     });
   }
 

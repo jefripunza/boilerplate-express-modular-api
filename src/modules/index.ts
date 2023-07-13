@@ -3,6 +3,7 @@
 import { StatusCodes } from 'http-status-codes';
 import express, { Request, Response } from 'express';
 import { IRequestJoin } from '../contracts/request.contract';
+import * as reporter from '../apps/reporter';
 
 import use_block from '../middlewares/use_block';
 import token_validation from '../middlewares/token_validation';
@@ -26,13 +27,12 @@ router.get('/', use_block, async (req: IRequestJoin, res: Response) => {
   try {
     return res.json({ message: 'welcome...' });
   } catch (error: any) {
-    // @ts-ignore
-    process.emit('uncaughtException', {
+    reporter.sendErrorLog({
       from: 'index/root',
-      message: error.message
+      error,
     });
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      message: 'Internal Server Error!'
+      message: 'Internal Server Error!',
     });
   }
 });

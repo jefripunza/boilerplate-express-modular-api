@@ -3,6 +3,7 @@ import { StatusCodes } from 'http-status-codes';
 import { UploadedFile } from 'express-fileupload';
 import express, { Response } from 'express';
 import { IRequestJoin } from '../contracts/request.contract';
+import * as reporter from '../apps/reporter';
 
 import * as User from '../models/repositories/user';
 import * as UserAddress from '../models/repositories/user_address';
@@ -34,9 +35,45 @@ app.get('/init', token_validation, async (req: IRequestJoin, res: Response) => {
   const result = await User.init(req.user.id);
 
   return res.json({
-    ...result
+    ...result,
   });
 });
+
+app.get(
+  '/paginate',
+  // token_validation,
+  // only_superman,
+  async (req: IRequestJoin, res: Response) => {
+    /**
+      #swagger.path = '/api/user/paginate'
+      #swagger.tags = ['User']
+      #swagger.summary = '(SuperAdmin)'
+    */
+
+    const { search, show, page, sort_by, order_by, filter } = req.query;
+
+    try {
+      const paginate = await User.paginate(
+        search,
+        show,
+        page,
+        sort_by,
+        order_by,
+        filter
+      );
+
+      return res.json(paginate);
+    } catch (error: any) {
+      reporter.sendErrorLog({
+        from: 'user/paginate',
+        error,
+      });
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        message: 'Internal Server Error!',
+      });
+    }
+  }
+);
 
 app.put(
   '/',
@@ -55,16 +92,16 @@ app.put(
 
     if (!name) {
       return res.status(400).json({
-        message: "body is'n complete!"
+        message: "body is'n complete!",
       });
     }
 
     await User.update(id_user, {
-      name
+      name,
     });
 
     return res.json({
-      message: 'success edit user!'
+      message: 'success edit user!',
     });
   }
 );
@@ -91,7 +128,7 @@ app.patch(
 
     if (!req.files || !req.files.image) {
       return res.status(400).json({
-        message: 'No image were uploaded.'
+        message: 'No image were uploaded.',
       });
     }
 
@@ -102,12 +139,12 @@ app.patch(
       )
     ) {
       return res.status(400).json({
-        message: 'file image only.'
+        message: 'file image only.',
       });
     }
     if (image.size > FileUploader.max_upload_image * 1024 * 1024) {
       return res.status(400).json({
-        message: `File size is too large. ${FileUploader.max_upload_image}MB maximum.`
+        message: `File size is too large. ${FileUploader.max_upload_image}MB maximum.`,
       });
     }
 
@@ -116,12 +153,12 @@ app.patch(
     image.mv(path.join(user_dir, new_name), async (error) => {
       if (error) {
         return res.status(500).json({
-          message: 'failed upload file...'
+          message: 'failed upload file...',
         });
       }
 
       return res.json({
-        filename: new_name
+        filename: new_name,
       });
     });
   }
@@ -143,13 +180,13 @@ v1.put(
 
     if (!(password && re_password)) {
       return res.status(400).json({
-        message: "body is'n complete!"
+        message: "body is'n complete!",
       });
     }
 
     if (password != re_password) {
       return res.status(400).json({
-        message: 'password not match!'
+        message: 'password not match!',
       });
     }
 
@@ -157,16 +194,15 @@ v1.put(
       await User.update(id_user, { password });
 
       return res.json({
-        message: 'success change password user!'
+        message: 'success change password user!',
       });
     } catch (error: any) {
-      // @ts-ignore
-      process.emit('uncaughtException', {
+      reporter.sendErrorLog({
         from: 'user/change-password',
-        message: error.message
+        error,
       });
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-        message: 'Internal Server Error!'
+        message: 'Internal Server Error!',
       });
     }
   }
@@ -193,13 +229,12 @@ v1.get(
     try {
       return res.json({ data });
     } catch (error: any) {
-      // @ts-ignore
-      process.emit('uncaughtException', {
+      reporter.sendErrorLog({
         from: 'user/address(get)',
-        message: error.message
+        error,
       });
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-        message: 'Internal Server Error!'
+        message: 'Internal Server Error!',
       });
     }
   }
@@ -226,7 +261,7 @@ v1.post(
       );
       if (isSubdistrictExist) {
         return res.status(400).json({
-          message: 'subdistrict_code is exist!'
+          message: 'subdistrict_code is exist!',
         });
       }
 
@@ -235,20 +270,19 @@ v1.post(
 
         subdistrict_code,
         detail,
-        is_use
+        is_use,
       });
 
       return res.json({
-        message: 'success add address user!'
+        message: 'success add address user!',
       });
     } catch (error: any) {
-      // @ts-ignore
-      process.emit('uncaughtException', {
+      reporter.sendErrorLog({
         from: 'user/address(post)',
-        message: error.message
+        error,
       });
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-        message: 'Internal Server Error!'
+        message: 'Internal Server Error!',
       });
     }
   }
@@ -276,7 +310,7 @@ v1.put(
       );
       if (!isAddressExist) {
         return res.status(400).json({
-          message: "address id is'n found!"
+          message: "address id is'n found!",
         });
       }
 
@@ -287,27 +321,26 @@ v1.put(
         );
         if (isSubdistrictExist) {
           return res.status(400).json({
-            message: 'subdistrict_code is exist!'
+            message: 'subdistrict_code is exist!',
           });
         }
       }
 
       await UserAddress.update(id_user, parseInt(id_user_address), {
         subdistrict_code,
-        detail
+        detail,
       });
 
       return res.json({
-        message: 'success edit address user!'
+        message: 'success edit address user!',
       });
     } catch (error: any) {
-      // @ts-ignore
-      process.emit('uncaughtException', {
+      reporter.sendErrorLog({
         from: 'user/address(put:id_user_address)',
-        message: error.message
+        error,
       });
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-        message: 'Internal Server Error!'
+        message: 'Internal Server Error!',
       });
     }
   }
@@ -334,23 +367,22 @@ v1.patch(
       );
       if (!isAddressExist) {
         return res.status(400).json({
-          message: "address id is'n found!"
+          message: "address id is'n found!",
         });
       }
 
       await UserAddress.changeMain(id_user, id_user_address);
 
       return res.json({
-        message: 'success change main address user!'
+        message: 'success change main address user!',
       });
     } catch (error: any) {
-      // @ts-ignore
-      process.emit('uncaughtException', {
+      reporter.sendErrorLog({
         from: 'user/main-address(patch:id_user_address)',
-        message: error.message
+        error,
       });
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-        message: 'Internal Server Error!'
+        message: 'Internal Server Error!',
       });
     }
   }
@@ -377,23 +409,22 @@ v1.delete(
       );
       if (!isAddressExist) {
         return res.status(400).json({
-          message: "address id is'n found!"
+          message: "address id is'n found!",
         });
       }
 
       await UserAddress.remove(id_user, id_user_address);
 
       return res.json({
-        message: 'success delete address user!'
+        message: 'success delete address user!',
       });
     } catch (error: any) {
-      // @ts-ignore
-      process.emit('uncaughtException', {
+      reporter.sendErrorLog({
         from: 'user/address(delete:id_user_address)',
-        message: error.message
+        error,
       });
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-        message: 'Internal Server Error!'
+        message: 'Internal Server Error!',
       });
     }
   }

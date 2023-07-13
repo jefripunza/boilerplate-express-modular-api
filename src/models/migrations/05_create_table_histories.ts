@@ -20,8 +20,8 @@ export async function up(knex: Knex): Promise<void> {
 
   await knex(tables.histories).insert([
     {
-      notes: 'First create system!'
-    }
+      notes: 'First create system!',
+    },
   ]);
 }
 

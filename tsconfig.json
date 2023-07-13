@@ -10,12 +10,11 @@
     // "baseUrl": "./",                                  /* Specify the base directory to resolve non-relative module names. */
     "resolveJsonModule": true,
     "allowJs": true,
-    // "declaration": true,                              /* Generate .d.ts files from TypeScript and JavaScript files in your project. */
     // "emitDeclarationOnly": true,                      /* Only output d.ts files and not JavaScript files. */
-    // "sourceMap": true,                                /* Create source map files for emitted JavaScript files. */
+    "sourceMap": true,
     // "outFile": "./",                                  /* Specify a file that bundles all outputs into one JavaScript file. If 'declaration' is true, also designates a file that bundles all .d.ts output. */
     "outDir": "build",
-    // "removeComments": true,                           /* Disable emitting comments. */
+    "removeComments": true,
     // "isolatedModules": true,                          /* Ensure that each file can be safely transpiled without relying on other imports. */
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
@@ -27,6 +26,7 @@
   },
   "include": ["src/**/*.ts"],
   "exclude": [
-    "./build/**/*" // This is what fixed it!
+    "./build/**/*", // This is what fixed it!
+    ".eslintrc.js"
   ]
 }

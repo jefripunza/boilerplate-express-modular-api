@@ -5,7 +5,7 @@ import {
   isArray,
   isObject,
   isNumber,
-  isDateFormat
+  isDateFormat,
 } from '../helpers/validation';
 
 const Database = knex(KnexConfig.config);
@@ -27,7 +27,7 @@ const DatabaseConnect = async (
     });
 };
 
-interface Pagination {
+interface IPagination {
   data: object[];
   meta: {
     total_data: number;
@@ -38,7 +38,7 @@ interface Pagination {
   };
 }
 
-interface FilterColumnSet {
+interface IFilterColumnSet {
   search?: string[];
   boolean?: string[];
   boolean_date?: string[];
@@ -46,7 +46,12 @@ interface FilterColumnSet {
   date_range?: string[];
 }
 
-class KnexExtension<TRecord extends object = any, TResult = unknown[]> {
+export interface IPaginationInit {
+  sort: string[];
+  filter: IFilterColumnSet;
+}
+
+class KnexExtra<TRecord extends object = any, TResult = unknown[]> {
   queryBuilder: Knex.QueryBuilder<TRecord, TResult>;
 
   constructor(queryBuilder: Knex.QueryBuilder<TRecord, TResult>) {
@@ -66,10 +71,16 @@ class KnexExtension<TRecord extends object = any, TResult = unknown[]> {
     }
     order_by = String(order_by).toLowerCase() == 'desc' ? 'DESC' : 'ASC';
     this.queryBuilder.orderBy(sort_by, order_by);
-    return this;
+
+    return this; // next...
   };
 
-  search = (column: string | string[], value: string, on_match = false) => {
+  search = (
+    column: string | string[] | undefined,
+    value: string,
+    on_match = false
+  ) => {
+    if (!column) return this; // skip...
     if (value && value.length > 0) {
       if (typeof column == 'string') {
         this.queryBuilder.where(
@@ -97,10 +108,11 @@ class KnexExtension<TRecord extends object = any, TResult = unknown[]> {
         });
       }
     }
+
     return this; // next...
   };
 
-  filter = (filter_query: string, column_set: FilterColumnSet) => {
+  filter = (filter_query: string, column_set: IFilterColumnSet) => {
     if (!filter_query || typeof filter_query != 'string') return this;
     const filters = filter_query.split(';');
     if (filters.length > 0) {
@@ -113,7 +125,7 @@ class KnexExtension<TRecord extends object = any, TResult = unknown[]> {
         boolean: column_set?.boolean || [],
         boolean_date: column_set?.boolean_date || [],
         enum: column_set?.enum || [],
-        date_range: column_set?.date_range || []
+        date_range: column_set?.date_range || [],
       };
 
       filters.forEach((filter) => {
@@ -158,21 +170,22 @@ class KnexExtension<TRecord extends object = any, TResult = unknown[]> {
           if (isDateFormat(start) && isDateFormat(end)) {
             this.queryBuilder.andWhereBetween(column, [
               new Date(start),
-              new Date(end)
+              new Date(end),
             ]);
           }
         }
       });
     }
-    return this; // skip or next...
+
+    return this; // next...
   };
 
   paginate = (
+    show_column: any[],
     per_page = 10,
     page = 1,
-    show_column = ['*'],
     margin = 0
-  ): Promise<Pagination> => {
+  ): Promise<IPagination> => {
     // fine value
     if (!per_page || !isNumber(per_page) || per_page <= 0) {
       per_page = 10; // default
@@ -180,9 +193,9 @@ class KnexExtension<TRecord extends object = any, TResult = unknown[]> {
     if (!page || !isNumber(page) || page <= 0) {
       page = 1; // default
     }
-    const useMargin = margin && margin !== 0;
+    const useMargin = margin && margin != 0;
     if (useMargin) {
-      if (typeof margin !== 'number') {
+      if (typeof margin != 'number') {
         margin = 3;
       } else {
         if (margin < 1) {
@@ -193,70 +206,71 @@ class KnexExtension<TRecord extends object = any, TResult = unknown[]> {
       }
     }
 
+    const show_column_fix = show_column.map((column) =>
+      typeof column == 'string' ? Database.raw(column) : column
+    );
     if (per_page < 1) per_page = 1;
     if (page < 1) page = 1;
-    const offset = (page - 1) * per_page;
-
-    const fix_show_column = show_column.map((column) => Database.raw(column));
     return Promise.all([
-      this.queryBuilder.clone().count('* as count').first(),
+      this.queryBuilder.clone().count('* AS count').first(),
       this.queryBuilder
-        .select(...fix_show_column)
-        .offset(offset)
-        .limit(per_page)
+        .select(...show_column_fix)
+        .offset((page - 1) * per_page)
+        .limit(per_page),
     ]).then(([total, rows]: any) => {
       const last_page = Math.ceil(total.count / per_page);
 
-      const pagination: Pagination = {
+      const pagination: IPagination = {
         data: rows,
         meta: {
           total_data: total.count,
           current_page: page,
           per_page,
-          last_page
-        }
+          last_page,
+        },
       };
+
       if (useMargin) {
         const margin_rate = margin * 2 + 1;
         let down = page - margin;
         down = down < 1 ? 1 : down;
         let up = page + margin;
         up = up > last_page ? last_page : up;
-        /**
-         * @type {number[]}
-         */
-        let list_margin: number[] = [...Array(last_page + margin)].reduce(
-          (simpan, i) => {
-            i = i + 1; // normalize
-            if (last_page < margin_rate) {
+
+        let list_margin: number[] = [
+          ...Array(last_page + margin).keys(),
+        ].reduce((simpan: number[], i) => {
+          i = i + 1; // normalize
+          if (last_page < margin_rate) {
+            return [...simpan, i];
+          }
+          if (i >= down && i <= up) {
+            return [...simpan, i];
+          } else {
+            if (i >= down && simpan.length < margin_rate) {
               return [...simpan, i];
             }
-            if (i >= down && i <= up) {
-              return [...simpan, i];
-            } else {
-              if (i >= down && simpan.length < margin_rate) {
-                return [...simpan, i];
-              }
-            }
-            return [...simpan];
-          },
-          []
-        );
+          }
+          return [...simpan];
+        }, []);
         const up_over = list_margin[list_margin.length - 1] - last_page;
         if (up_over > 0) {
-          list_margin = [...Array(margin_rate)].reduce((simpan, i) => {
-            return [...simpan, i + last_page - margin_rate + 1];
-          }, []);
+          list_margin = [...Array(margin_rate).keys()].reduce(
+            (simpan: number[], i) => {
+              return [...simpan, i + last_page - margin_rate + 1];
+            },
+            []
+          );
         }
-        pagination.meta.margin = list_margin;
+        pagination.meta.margin = list_margin.filter((v) => v > 0);
       }
 
       return pagination;
     });
   };
+
+  // ============================================================================================
+  // ============================================================================================
 }
 
-// const query = Database('test');
-// const test = new KnexExtension(query);
-
-export { DatabaseConnect, Database, KnexExtension };
+export { DatabaseConnect, Database, KnexExtra };

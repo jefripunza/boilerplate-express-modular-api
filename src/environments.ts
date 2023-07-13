@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import { project_root } from './paths';
 
 dotenv.config({
-  path: path.join(project_root, '.env')
+  path: path.join(project_root, '.env'),
 });
 
 export const NODE_ENV = process.env?.NODE_ENV || 'local';
@@ -51,8 +51,10 @@ export namespace Jwt {
 }
 
 export namespace Reporter {
-  export const ERROR_URL = process.env.REPORT_ERROR_URL;
-  export const BUSINESS_URL = process.env.REPORT_BUSINESS_URL;
+  export const GIT_URL: any = process.env.REPORT_GIT_URL;
+  export const ERROR_URL: any = process.env.REPORT_ERROR_URL;
+  export const BUSINESS_URL: any = process.env.REPORT_BUSINESS_URL;
+
   export const BEARER_TOKEN = process.env.REPORT_BEARER_TOKEN;
   export const GROUP_ID = process.env.REPORT_GROUP_ID;
 }

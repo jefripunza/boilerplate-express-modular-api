@@ -4,14 +4,14 @@ import { ITokenContent } from '../contracts/request.contract';
 
 export const createToken = (object: object) => {
   return jwt.sign(object, Jwt.SECRET_TOKEN, {
-    expiresIn: Jwt.EXPIRED_TOKEN
+    expiresIn: Jwt.EXPIRED_TOKEN,
   });
 };
 
-interface JwtExtract {
+interface IJwtExtract {
   exp: number;
 }
-export interface IJwtData extends ITokenContent, JwtExtract {}
+export interface IJwtData extends ITokenContent, IJwtExtract {}
 
 interface IVerifyToken {
   data: IJwtData;
@@ -27,11 +27,11 @@ export const verifyToken = async (token: string): Promise<IVerifyToken> => {
           resolve({
             error: 401,
             message: 'Not Authorized',
-            data: data_undefined
+            data: data_undefined,
           });
         }
         resolve({
-          data
+          data,
         });
       });
     });
@@ -39,6 +39,6 @@ export const verifyToken = async (token: string): Promise<IVerifyToken> => {
   return {
     error: 403,
     message: 'Authorization Bearer is required!',
-    data: data_undefined
+    data: data_undefined,
   };
 };

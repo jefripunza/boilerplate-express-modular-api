@@ -18,12 +18,12 @@ const doc = {
     termsOfService: 'http://swagger.io/terms/',
     contact: {
       name: Swagger.CONTACT_NAME,
-      email: Swagger.CONTACT_EMAIL
+      email: Swagger.CONTACT_EMAIL,
     },
     license: {
       name: 'MIT',
-      url: 'https://opensource.org/licenses/MIT'
-    }
+      url: 'https://opensource.org/licenses/MIT',
+    },
   },
   host: `localhost:${Server.PORT}`,
   basePath: '/',
@@ -40,15 +40,16 @@ const doc = {
       type: 'apiKey',
       name: 'Authorization',
       in: 'header',
-      description: 'Enter your bearer token in the format **Bearer &lt;token>**'
-    }
+      description:
+        'Enter your bearer token in the format **Bearer &lt;token>**',
+    },
   },
   definitions: {
     only_message: {
-      message: 'string'
-    }
+      message: 'string',
+    },
   },
-  components: {} // by default: empty object (OpenAPI 3.x)
+  components: {}, // by default: empty object (OpenAPI 3.x)
 };
 
 const endpointsFiles = fs

@@ -9,7 +9,7 @@ export default async (req: IRequestJoin, res: Response, next: NextFunction) => {
 
   if (!identity) {
     return res.status(400).json({
-      message: 'identity require!'
+      message: 'identity require!',
     });
   }
 
@@ -21,13 +21,13 @@ export default async (req: IRequestJoin, res: Response, next: NextFunction) => {
     if (isUserMatch.is_block == 1) {
       return res.status(401).json({
         message: 'you are blocked!',
-        is_blocked: true
+        is_blocked: true,
       });
     }
   } else {
     await Block.insert({
       identity,
-      ip_address
+      ip_address,
     });
   }
 

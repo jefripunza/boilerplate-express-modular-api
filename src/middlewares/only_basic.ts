@@ -7,6 +7,6 @@ export default (req: IRequestJoin, res: Response, next: NextFunction) => {
     return next();
   }
   return res.status(401).json({
-    message: 'Only Basic !!!'
+    message: 'Only Basic !!!',
   });
 };

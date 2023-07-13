@@ -1,6 +1,7 @@
 import { StatusCodes } from 'http-status-codes';
 import express, { Response } from 'express';
 import { IRequestJoin } from '../contracts/request.contract';
+import * as reporter from '../apps/reporter';
 
 import * as History from '../models/repositories/history';
 
@@ -19,7 +20,7 @@ app.get(
   '/list',
   token_validation,
   only_superman,
-  async (_: IRequestJoin, res: Response) => {
+  async (req: IRequestJoin, res: Response) => {
     /**
       #swagger.path = '/api/history/list'
       #swagger.tags = ['History']
@@ -30,16 +31,15 @@ app.get(
       const data = await History.list();
 
       return res.json({
-        data
+        data,
       });
     } catch (error: any) {
-      // @ts-ignore
-      process.emit('uncaughtException', {
+      reporter.sendErrorLog({
         from: 'history/list',
-        message: error.message
+        error,
       });
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-        message: 'Internal Server Error!'
+        message: 'Internal Server Error!',
       });
     }
   }

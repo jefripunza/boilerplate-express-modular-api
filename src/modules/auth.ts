@@ -1,6 +1,7 @@
 import { StatusCodes } from 'http-status-codes';
 import express, { Request, Response } from 'express';
 import { IRequestJoin } from '../contracts/request.contract';
+import * as reporter from '../apps/reporter';
 
 import { OTP_EXPIRED_MINUTE } from '../environments';
 
@@ -33,13 +34,13 @@ v1.post('/register', async (req: Request, res: Response) => {
 
   if (!(name && username && phone_number && password)) {
     return res.status(400).json({
-      message: "body is'n complete!"
+      message: "body is'n complete!",
     });
   }
 
   if (String(password).length < 8) {
     return res.status(400).json({
-      message: 'password must be length up to 8 character!'
+      message: 'password must be length up to 8 character!',
     });
   }
 
@@ -48,12 +49,12 @@ v1.post('/register', async (req: Request, res: Response) => {
     if (isUserExist) {
       if (isUserExist.is_verify) {
         return res.status(400).json({
-          message: 'phone number is already register!'
+          message: 'phone number is already register!',
         });
       }
       if (isUserExist.is_block) {
         return res.status(400).json({
-          message: 'Sorry, your phone number is blocked!'
+          message: 'Sorry, your phone number is blocked!',
         });
       }
       const now = new Date();
@@ -62,11 +63,11 @@ v1.post('/register', async (req: Request, res: Response) => {
       if (now.getTime() < expired_token.getTime()) {
         if (isUserExist.otp_count >= 3) {
           return res.status(400).json({
-            message: 'waiting expired OTP!'
+            message: 'waiting expired OTP!',
           });
         }
         return res.status(400).json({
-          message: 'token already can use!'
+          message: 'token already can use!',
         });
       }
     }
@@ -80,7 +81,7 @@ v1.post('/register', async (req: Request, res: Response) => {
       otp_secret,
       otp_code,
       otp_count: 0,
-      otp_start_date: new Date()
+      otp_start_date: new Date(),
     };
     if (isUserExist) {
       await User.updateByUsername(username, {
@@ -88,7 +89,7 @@ v1.post('/register', async (req: Request, res: Response) => {
         phone_number,
         password,
 
-        ...otp_management
+        ...otp_management,
       });
     } else {
       await User.insert({
@@ -97,22 +98,21 @@ v1.post('/register', async (req: Request, res: Response) => {
         phone_number,
         password,
 
-        ...otp_management
+        ...otp_management,
       });
     }
 
     return res.json({
       message: 'Please validate your OTP code!',
-      otp_secret
+      otp_secret,
     });
   } catch (error: any) {
-    // @ts-ignore
-    process.emit('uncaughtException', {
+    reporter.sendErrorLog({
       from: 'auth/register',
-      message: error.message
+      error,
     });
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      message: 'Internal Server Error!'
+      message: 'Internal Server Error!',
     });
   }
 });
@@ -130,13 +130,13 @@ v1.post('/login', async (req: Request, res: Response) => {
 
   if (!(username && password)) {
     return res.status(400).json({
-      message: "body is'n complete!"
+      message: "body is'n complete!",
     });
   }
 
   if (String(password).length < 8) {
     return res.status(400).json({
-      message: 'password must be length up to 8 character!'
+      message: 'password must be length up to 8 character!',
     });
   }
 
@@ -144,12 +144,12 @@ v1.post('/login', async (req: Request, res: Response) => {
     const isLogin: any = await User.isLogin(username, password);
     if (!isLogin) {
       return res.status(400).json({
-        message: 'username or password is wrong!'
+        message: 'username or password is wrong!',
       });
     }
     if (isLogin.is_block) {
       return res.status(400).json({
-        message: 'Sorry, your phone number is blocked!'
+        message: 'Sorry, your phone number is blocked!',
       });
     }
     if (isLogin.activity_at) {
@@ -157,7 +157,7 @@ v1.post('/login', async (req: Request, res: Response) => {
       const expired_login = new Date(isLogin.activity_at);
       if (now.getTime() < expired_login.getTime()) {
         return res.status(400).json({
-          message: 'Sorry, the account is already signed in on another device!'
+          message: 'Sorry, the account is already signed in on another device!',
         });
       }
     }
@@ -183,7 +183,7 @@ v1.post('/login', async (req: Request, res: Response) => {
     expired_token.setMinutes(expired_token.getMinutes() + OTP_EXPIRED_MINUTE);
     if (now.getTime() < expired_token.getTime()) {
       return res.status(400).json({
-        message: 'waiting expired OTP!'
+        message: 'waiting expired OTP!',
       });
     }
 
@@ -195,21 +195,20 @@ v1.post('/login', async (req: Request, res: Response) => {
       otp_secret,
       otp_code,
       otp_count: 0,
-      otp_start_date: new Date()
+      otp_start_date: new Date(),
     });
 
     return res.json({
       message: 'Please validate your OTP code!',
-      otp_secret
+      otp_secret,
     });
   } catch (error: any) {
-    // @ts-ignore
-    process.emit('uncaughtException', {
+    reporter.sendErrorLog({
       from: 'auth/login',
-      message: error.message
+      error,
     });
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      message: 'Internal Server Error!'
+      message: 'Internal Server Error!',
     });
   }
 });
@@ -227,7 +226,7 @@ v1.post('/token-validate/:mode', async (req: Request, res: Response) => {
 
   if (!(otp_secret && otp_code)) {
     return res.status(400).json({
-      message: "body is'n complete!"
+      message: "body is'n complete!",
     });
   }
 
@@ -235,12 +234,12 @@ v1.post('/token-validate/:mode', async (req: Request, res: Response) => {
     const isExist: any = await User.isOtpSecretExist(otp_secret);
     if (!isExist) {
       return res.status(400).json({
-        message: 'otp_secret not found!'
+        message: 'otp_secret not found!',
       });
     }
     if (isExist.otp_count >= 3) {
       return res.status(400).json({
-        message: 'please send new OTP!'
+        message: 'please send new OTP!',
       });
     }
     await User.increaseOtpCount(otp_code, isExist.otp_count);
@@ -250,12 +249,12 @@ v1.post('/token-validate/:mode', async (req: Request, res: Response) => {
     expired_token.setMinutes(expired_token.getMinutes() + OTP_EXPIRED_MINUTE);
     if (now.getTime() >= expired_token.getTime()) {
       return res.status(400).json({
-        message: 'OTP is expired!'
+        message: 'OTP is expired!',
       });
     }
     if (isExist.otp_code != otp_code) {
       return res.status(400).json({
-        message: 'OTP not match!'
+        message: 'OTP not match!',
       });
     }
 
@@ -269,7 +268,7 @@ v1.post('/token-validate/:mode', async (req: Request, res: Response) => {
       otp_start_date: null,
 
       is_verify: true,
-      activity_at: expired_login
+      activity_at: expired_login,
     };
 
     await User.updateByOtpSecret(otp_secret, changes);
@@ -277,26 +276,25 @@ v1.post('/token-validate/:mode', async (req: Request, res: Response) => {
     // create token
     const token = jwt.createToken({
       id: isExist.id,
-      role: isExist.role
+      role: isExist.role,
     });
 
     res.cookie('token', token, {
-      httpOnly: true
+      httpOnly: true,
     });
     return res.json({
       message: `tokens are correct!`,
       token,
       username: isExist.username,
-      role: isExist.role
+      role: isExist.role,
     });
   } catch (error: any) {
-    // @ts-ignore
-    process.emit('uncaughtException', {
+    reporter.sendErrorLog({
       from: 'auth/token-validate',
-      message: error.message
+      error,
     });
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      message: 'Internal Server Error!'
+      message: 'Internal Server Error!',
     });
   }
 });
@@ -318,7 +316,7 @@ v1.delete(
     res.clearCookie('token');
 
     return res.json({
-      message: 'success logout!'
+      message: 'success logout!',
     });
   }
 );

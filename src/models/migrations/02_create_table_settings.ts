@@ -17,8 +17,8 @@ export async function up(knex: Knex): Promise<void> {
   await knex(tables.settings).insert([
     {
       key: 'app_name',
-      value: Swagger.APP_NAME
-    }
+      value: Swagger.APP_NAME,
+    },
   ]);
 }
 

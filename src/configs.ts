@@ -11,17 +11,17 @@ export namespace Knex {
       port: Database.PORT,
       user: Database.USER,
       password: Database.PASS,
-      database: Database.NAME
+      database: Database.NAME,
     },
     pool: {
       min: Database.poolMin,
-      max: Database.poolMax
+      max: Database.poolMax,
     },
     migrations: {
       tableName: 'knex_migrations',
-      directory: migrations_dir
+      directory: migrations_dir,
     },
-    debug: Server.isLocal ? true : false
+    debug: Server.isLocal ? true : false,
   };
 }
 
@@ -39,7 +39,7 @@ export const user_roles = {
   admin: 'admin',
 
   // user
-  basic: 'basic' // register
+  basic: 'basic', // register
 };
 
 export const tables = {
@@ -47,5 +47,5 @@ export const tables = {
   settings: 'settings',
   users: 'users',
   user_address: 'user_address', // users: one to many
-  histories: 'histories'
+  histories: 'histories',
 };

@@ -7,6 +7,8 @@ StartLogging();
 DatabaseConnect(() => {
   server.listen(Server.PORT, () => {
     // eslint-disable-next-line no-console
-    console.log(`✈️  Server listening on http://localhost:${Server.PORT}`);
+    console.log(
+      `✈️  Server listening on http://localhost:${Server.PORT}/swagger`
+    );
   });
 });

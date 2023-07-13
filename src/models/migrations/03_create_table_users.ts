@@ -44,7 +44,7 @@ export async function up(knex: Knex): Promise<void> {
       username: 'superman',
       phone_number: '082214252455',
       password: encryption.encode('adaajadeh'),
-      role: user_roles.superadmin
+      role: user_roles.superadmin,
     },
     {
       id: 2,
@@ -54,7 +54,7 @@ export async function up(knex: Knex): Promise<void> {
       username: 'admin',
       phone_number: '082281162571',
       password: encryption.encode('akhsiyap'),
-      role: user_roles.admin
+      role: user_roles.admin,
     },
     {
       id: 3,
@@ -64,8 +64,8 @@ export async function up(knex: Knex): Promise<void> {
       username: 'tester-mobile',
       phone_number: '082285469899',
       password: encryption.encode('akhsiyap'),
-      role: user_roles.basic
-    }
+      role: user_roles.basic,
+    },
   ]);
 }
 

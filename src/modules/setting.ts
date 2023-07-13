@@ -1,6 +1,7 @@
 import { StatusCodes } from 'http-status-codes';
 import express, { Response } from 'express';
 import { IRequestJoin } from '../contracts/request.contract';
+import * as reporter from '../apps/reporter';
 
 import * as Setting from '../models/repositories/setting';
 
@@ -19,7 +20,7 @@ app.get(
   '/list',
   token_validation,
   only_admin,
-  async (_: IRequestJoin, res: Response) => {
+  async (req: IRequestJoin, res: Response) => {
     /**
       #swagger.path = '/api/setting/list'
       #swagger.tags = ['Setting']
@@ -30,16 +31,15 @@ app.get(
       const data = await Setting.list();
 
       return res.json({
-        data
+        data,
       });
     } catch (error: any) {
-      // @ts-ignore
-      process.emit('uncaughtException', {
+      reporter.sendErrorLog({
         from: 'setting/list',
-        message: error.message
+        error,
       });
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-        message: 'Internal Server Error!'
+        message: 'Internal Server Error!',
       });
     }
   }
@@ -62,26 +62,25 @@ app.post(
       const isKeyExist = await Setting.isKeyExist(key);
       if (isKeyExist) {
         return res.status(400).json({
-          message: 'key is exist!'
+          message: 'key is exist!',
         });
       }
 
       await Setting.insert({
         key,
-        value
+        value,
       });
 
       return res.json({
-        message: 'success add setting!'
+        message: 'success add setting!',
       });
     } catch (error: any) {
-      // @ts-ignore
-      process.emit('uncaughtException', {
+      reporter.sendErrorLog({
         from: 'setting/new',
-        message: error.message
+        error,
       });
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-        message: 'Internal Server Error!'
+        message: 'Internal Server Error!',
       });
     }
   }
@@ -103,23 +102,22 @@ app.put(
       const isKeyExist = await Setting.isKeyExist(key);
       if (!isKeyExist) {
         return res.status(400).json({
-          message: 'key is not found!'
+          message: 'key is not found!',
         });
       }
 
       await Setting.update(key, value);
 
       return res.json({
-        message: 'success edit setting!'
+        message: 'success edit setting!',
       });
     } catch (error: any) {
-      // @ts-ignore
-      process.emit('uncaughtException', {
+      reporter.sendErrorLog({
         from: 'setting/edit',
-        message: error.message
+        error,
       });
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-        message: 'Internal Server Error!'
+        message: 'Internal Server Error!',
       });
     }
   }

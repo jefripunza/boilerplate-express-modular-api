@@ -14,7 +14,7 @@ const app: any = express.Router();
 
 const options: cron.ScheduleOptions = {
   scheduled: false,
-  timezone: Server.TZ
+  timezone: Server.TZ,
 };
 /**
  * @param {string} cronExpression
@@ -42,7 +42,7 @@ tasks['test'] = {
     const now = new Date();
     console.log('running test task...', { now: now.toLocaleString() });
   }),
-  status: Server.isDevelopment || Server.isProduction ? false : true
+  status: Server.isDevelopment || Server.isProduction ? false : true,
 };
 
 // ==========================================================================
@@ -75,7 +75,7 @@ app.get(
     const list_task = Object.keys(tasks).map((key) => {
       return {
         key,
-        status: tasks[key].status
+        status: tasks[key].status,
       };
     });
     return res.json({ task: list_task });

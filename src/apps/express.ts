@@ -32,7 +32,7 @@ app.use(function (req: any, res, next) {
   if (req.cookies[key_identity] === undefined) {
     // set a new cookie
     res.cookie(key_identity, random.Text(18), {
-      httpOnly: true
+      httpOnly: true,
     });
   }
   next(); // <-- important!
@@ -55,8 +55,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(
   fileUpload({
     limits: {
-      fileSize: FileUploader.max_file_upload_size * 1024 * 1024 // MB
-    }
+      fileSize: FileUploader.max_file_upload_size * 1024 * 1024, // MB
+    },
   })
 );
 
@@ -100,7 +100,7 @@ Promise.resolve()
         return res.status(403).send('forbidden');
       }
       return res.status(404).json({
-        message: 'endpoint not found!'
+        message: 'endpoint not found!',
       });
     });
   });

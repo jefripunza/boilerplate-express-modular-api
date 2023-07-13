@@ -1,4 +1,4 @@
-import { Database, KnexExtension } from '../../apps/knex';
+import { Database, KnexExtra, IPaginationInit } from '../../apps/knex';
 import { tables } from '../../configs';
 
 export const paginate = async (
@@ -9,25 +9,21 @@ export const paginate = async (
   order_by: any,
   filter: any
 ) => {
-  const init = {
+  const init: IPaginationInit = {
     sort: ['blocks.id', 'blocks.created_at'],
     filter: {
       search: ['blocks.identity', 'blocks.ip_address'],
-      boolean: [],
       date_range: ['blocks.created_at'],
-      enum: []
-    }
+    },
   };
 
   const query = Database(tables.blocks);
-  const extension = new KnexExtension(query);
-  return await extension
+  const extra = new KnexExtra(query);
+  return await extra
     .search(init.filter.search, search)
     .orderBy(init.sort, sort_by, order_by)
     .filter(filter, init.filter)
     .paginate(
-      show,
-      page,
       // format data per row
       [
         'blocks.id', // foreign key
@@ -35,8 +31,10 @@ export const paginate = async (
         'blocks.identity',
         'blocks.ip_address',
 
-        'blocks.created_at'
+        'blocks.created_at',
       ],
+      parseInt(show),
+      parseInt(page),
       2
     );
 };
@@ -68,7 +66,7 @@ interface IInsert {
 export const insert = async (data: IInsert) => {
   await Database(tables.blocks).insert({
     identity: data.identity,
-    ip_address: data.ip_address
+    ip_address: data.ip_address,
   });
 };
 
