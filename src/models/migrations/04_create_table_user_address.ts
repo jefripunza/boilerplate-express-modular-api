@@ -1,27 +1,27 @@
-import { Knex } from "knex";
+import { Knex } from 'knex';
 
-import { tables } from "../config";
+import { tables } from '../../configs';
 
 export async function up(knex: Knex): Promise<void> {
   return knex.schema.createTable(tables.user_address, function (table) {
     table.increments();
 
     table
-      .integer("id_user")
+      .integer('id_user')
       .unsigned()
       .notNullable()
-      .references("id")
+      .references('id')
       .inTable(tables.users)
-      .onUpdate("CASCADE")
-      .onDelete("CASCADE");
+      .onUpdate('CASCADE')
+      .onDelete('CASCADE');
 
-    table.string("subdistrict_code").notNullable(); // untuk RAJA ONGKIR (FROM)
-    table.string("detail").notNullable();
+    table.string('subdistrict_code').notNullable(); // untuk RAJA ONGKIR (FROM)
+    table.string('detail').notNullable();
 
-    table.boolean("is_use").defaultTo(false);
+    table.boolean('is_use').defaultTo(false);
 
-    table.datetime("created_at").defaultTo(knex.fn.now());
-    table.datetime("updated_at").defaultTo(null).nullable();
+    table.datetime('created_at').defaultTo(knex.fn.now());
+    table.datetime('updated_at').defaultTo(null).nullable();
   });
 }
 

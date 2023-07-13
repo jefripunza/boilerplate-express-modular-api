@@ -1,5 +1,5 @@
 export const newNameUpload = (filename: string) => {
-  filename = String(filename).replace(/ /g, "_").toLowerCase();
+  filename = String(filename).replace(/ /g, '_').toLowerCase();
   const now = new Date();
   return `${now.getFullYear()}-${
     now.getMonth() + 1
@@ -9,5 +9,5 @@ export const newNameUpload = (filename: string) => {
 export const createProductUrl = (name: string) =>
   String(name)
     .toLowerCase()
-    .replace(/[~`!@#$%^&*()-\_+={}\[\]:;"'<>,.?/|\\]/g, "")
-    .replace(/\s+/g, "-");
+    .replace(/[~`!@#$%^&*()-\_+={}\[\]:;"'<>,.?/|\\]/g, '')
+    .replace(/\s+/g, '-');

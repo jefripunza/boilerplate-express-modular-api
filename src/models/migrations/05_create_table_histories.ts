@@ -1,27 +1,27 @@
-import { Knex } from "knex";
+import { Knex } from 'knex';
 
-import { tables } from "../config";
+import { tables } from '../../configs';
 
 export async function up(knex: Knex): Promise<void> {
   await knex.schema.createTable(tables.histories, function (table) {
     table.increments();
 
     table
-      .integer("id_user")
+      .integer('id_user')
       .unsigned()
       .nullable()
-      .references("id")
+      .references('id')
       .inTable(tables.users);
 
-    table.text("notes").notNullable();
+    table.text('notes').notNullable();
 
-    table.datetime("created_at").defaultTo(knex.fn.now());
+    table.datetime('created_at').defaultTo(knex.fn.now());
   });
 
   await knex(tables.histories).insert([
     {
-      notes: "First create system!",
-    },
+      notes: 'First create system!'
+    }
   ]);
 }
 

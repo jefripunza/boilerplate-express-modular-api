@@ -19,18 +19,26 @@ app.get(
   '/list',
   token_validation,
   only_superman,
-  async (_: IRequestJoin, res: Response) => {
+  async (req: IRequestJoin, res: Response) => {
     /**
       #swagger.path = '/api/block/list'
       #swagger.tags = ['Block']
       #swagger.summary = '(SuperAdmin)'
     */
 
+    const { search, show, page, sort_by, order_by, filter } = req.query;
+
     try {
-      const data = await Block.list();
-      return res.json({
-        data
-      });
+      const paginate = await Block.paginate(
+        search,
+        show,
+        page,
+        sort_by,
+        order_by,
+        filter
+      );
+
+      return res.json(paginate);
     } catch (error: any) {
       // @ts-ignore
       process.emit('uncaughtException', {

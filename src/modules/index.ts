@@ -4,6 +4,7 @@ import { StatusCodes } from 'http-status-codes';
 import express, { Request, Response } from 'express';
 import { IRequestJoin } from '../contracts/request.contract';
 
+import use_block from '../middlewares/use_block';
 import token_validation from '../middlewares/token_validation';
 import only_admin from '../middlewares/only_admin';
 import only_basic from '../middlewares/only_basic';
@@ -16,7 +17,7 @@ const v1: any = express.Router();
 // =======================================================================
 // =======================================================================
 
-router.get('/', async (req: IRequestJoin, res: Response) => {
+router.get('/', use_block, async (req: IRequestJoin, res: Response) => {
   /**
     #swagger.tags = ['Index']
     #swagger.summary = '(*)'

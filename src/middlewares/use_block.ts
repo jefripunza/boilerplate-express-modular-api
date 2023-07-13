@@ -13,14 +13,21 @@ export default async (req: IRequestJoin, res: Response, next: NextFunction) => {
     });
   }
 
-  const isUserMatch = await Block.whereIdentityOrIpIsBlocked(
+  const isUserMatch: any = await Block.whereIdentityOrIpIsBlocked(
     identity,
     ip_address
   );
   if (isUserMatch) {
-    return res.status(401).json({
-      message: 'you are blocked!',
-      is_blocked: true
+    if (isUserMatch.is_block == 1) {
+      return res.status(401).json({
+        message: 'you are blocked!',
+        is_blocked: true
+      });
+    }
+  } else {
+    await Block.insert({
+      identity,
+      ip_address
     });
   }
 

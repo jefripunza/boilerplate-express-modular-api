@@ -1,6 +1,6 @@
 import knex, { Knex } from 'knex';
-
 import { Knex as KnexConfig } from '../configs';
+
 import {
   isArray,
   isObject,
@@ -8,14 +8,13 @@ import {
   isDateFormat
 } from '../helpers/validation';
 
-const knexInstance = knex(KnexConfig.config);
+const Database = knex(KnexConfig.config);
 
 const DatabaseConnect = async (
   // eslint-disable-next-line @typescript-eslint/ban-types
   cb: boolean | Function = false
 ): Promise<void> => {
-  knexInstance
-    .raw('SELECT 1')
+  Database.raw('SELECT 1')
     .then(() => {
       // eslint-disable-next-line no-console
       console.info('✈️ Database connected');
@@ -28,172 +27,136 @@ const DatabaseConnect = async (
     });
 };
 
-class CustomQueryBuilder<T> {
-  private queryBuilder: Knex.QueryBuilder;
+interface Pagination {
+  data: object[];
+  meta: {
+    total_data: number;
+    current_page: number;
+    per_page: number;
+    last_page: number;
+    margin?: number[];
+  };
+}
 
-  constructor(queryBuilder: Knex.QueryBuilder) {
+interface FilterColumnSet {
+  search?: string[];
+  boolean?: string[];
+  boolean_date?: string[];
+  enum?: string[];
+  date_range?: string[];
+}
+
+class KnexExtension<TRecord extends object = any, TResult = unknown[]> {
+  queryBuilder: Knex.QueryBuilder<TRecord, TResult>;
+
+  constructor(queryBuilder: Knex.QueryBuilder<TRecord, TResult>) {
     this.queryBuilder = queryBuilder;
   }
 
   // ============================================================================================
   // ============================================================================================
 
-  select(...columns: string[]): CustomQueryBuilder<T> {
-    this.queryBuilder.select(...columns);
-    return this;
-  }
-  from(table: string): CustomQueryBuilder<T> {
-    this.queryBuilder.from(table);
-    return this;
-  }
-  first(): CustomQueryBuilder<T> {
-    this.queryBuilder.first();
-    return this;
-  }
-
-  where(column: string, value: any): CustomQueryBuilder<T> {
-    this.queryBuilder.where(column, value);
-    return this;
-  }
-  orWhere(column: string, value: any): CustomQueryBuilder<T> {
-    this.queryBuilder.orWhere(column, value);
-    return this;
-  }
-  whereRaw(condition: string): CustomQueryBuilder<T> {
-    this.queryBuilder.whereRaw(condition);
-    return this;
-  }
-  whereCallback(
-    condition: (queryBuilder: CustomQueryBuilder<T>) => void
-  ): CustomQueryBuilder<T> {
-    condition(this.queryBuilder as unknown as CustomQueryBuilder<T>);
-    return this;
-  }
-
-  insert(columns: object): CustomQueryBuilder<T> {
-    this.queryBuilder.insert(columns);
-    return this;
-  }
-  update(columns: object): CustomQueryBuilder<T> {
-    this.queryBuilder.update(columns);
-    return this;
-  }
-  delete(): CustomQueryBuilder<T> {
-    this.queryBuilder.delete();
-    return this;
-  }
-
-  // Join
-  innerJoin(
-    table_a: string,
-    column_a: string,
-    column_b: string
-  ): CustomQueryBuilder<T> {
-    this.queryBuilder.innerJoin(table_a, column_a, column_b);
-    return this;
-  }
-  leftJoin(
-    table_a: string,
-    column_a: string,
-    column_b: string
-  ): CustomQueryBuilder<T> {
-    this.queryBuilder.innerJoin(table_a, column_a, column_b);
-    return this;
-  }
-
-  // Wajib...
-  async execute(): Promise<any> {
-    return await this.queryBuilder;
-  }
-
-  // ============================================================================================
-  // ============================================================================================
-
-  orderBy = (sort_by = 'id', order_by = 'ASC') => {
-    sort_by = sort_by ? sort_by : 'id';
-    order_by = order_by ? order_by : 'ASC';
-    order_by = String(order_by).toLowerCase() === 'desc' ? 'DESC' : 'ASC';
+  orderBy = (sort: string[], sort_by = 'id', order_by = 'ASC') => {
+    if (sort_by) {
+      if (!sort.includes(sort_by)) {
+        sort_by = sort[0];
+      }
+    } else {
+      sort_by = sort[0];
+    }
+    order_by = String(order_by).toLowerCase() == 'desc' ? 'DESC' : 'ASC';
     this.queryBuilder.orderBy(sort_by, order_by);
     return this;
   };
 
-  search = (column: string | string[], value: string) => {
+  search = (column: string | string[], value: string, on_match = false) => {
     if (value && value.length > 0) {
-      if (typeof column === 'string') {
-        return this.queryBuilder.where(
-          knexInstance.raw(`LOWER(${column})`),
+      if (typeof column == 'string') {
+        this.queryBuilder.where(
+          Database.raw(`LOWER(${column})`),
           'LIKE',
           `%${String(value).toLowerCase()}%`
         );
       } else if (isArray(column)) {
-        column.forEach((col) => {
-          if (typeof col !== 'string') return;
-          return this.queryBuilder.orWhere(
-            knexInstance.raw(`LOWER(${col})`),
-            'LIKE',
-            `%${String(value).toLowerCase()}%`
-          );
+        this.queryBuilder.where(function () {
+          column.forEach((col) => {
+            if (typeof value != 'string') return;
+            if (on_match) {
+              return this.andWhere(
+                Database.raw(`LOWER(${col})`),
+                'LIKE',
+                `%${String(value).toLowerCase()}%`
+              );
+            }
+            return this.orWhere(
+              Database.raw(`LOWER(${col})`),
+              'LIKE',
+              `%${String(value).toLowerCase()}%`
+            );
+          });
         });
       }
     }
-    return this; // skip
+    return this; // next...
   };
 
-  filter = (filter_query: string, column_set: any) => {
-    if (!filter_query || typeof filter_query !== 'string') return this;
+  filter = (filter_query: string, column_set: FilterColumnSet) => {
+    if (!filter_query || typeof filter_query != 'string') return this;
     const filters = filter_query.split(';');
     if (filters.length > 0) {
       if (!isObject(column_set)) {
         throw new Error('bad, column_set on filter not object');
       }
-      const column_key = Object.keys(column_set).filter(
-        (key) =>
-          ['search', 'boolean', 'boolean_date', 'date_range'].includes(key) &&
-          isArray(column_set[key])
-      );
-      if (column_key.length === 0) {
-        throw new Error('bad, column_set is zero object or key not array');
-      }
-      const focus: any = {};
-      focus.search = column_set?.search ?? [];
-      focus.boolean = column_set?.boolean ?? [];
-      focus.boolean_date = column_set?.boolean_date ?? [];
-      focus.date_range = column_set?.date_range ?? [];
+
+      const focus = {
+        search: column_set?.search || [],
+        boolean: column_set?.boolean || [],
+        boolean_date: column_set?.boolean_date || [],
+        enum: column_set?.enum || [],
+        date_range: column_set?.date_range || []
+      };
 
       filters.forEach((filter) => {
-        // eslint-disable-next-line prefer-const
-        let [column, value]: any = filter.split(':');
+        const [column, value] = filter.split(':');
+
         if (focus.search.length > 0 && focus.search.includes(column)) {
           // ex: my love...
-          this.search(column, value);
+          this.search(column, value, true);
         }
+
         if (focus.boolean.length > 0 && focus.boolean.includes(column)) {
           // ex: true / false
-          if (String(value).toLowerCase() === 'true') {
-            value = true;
-          } else if (String(value).toLowerCase() === 'false') {
-            value = false;
+          let value_result = false;
+          if (String(value).toLowerCase() == 'true') {
+            value_result = true;
           }
-          if (typeof value === 'boolean')
-            this.queryBuilder.where(column, value);
+          if (typeof value == 'boolean')
+            this.queryBuilder.andWhere(column, value_result);
         }
+
         if (
           focus.boolean_date.length > 0 &&
           focus.boolean_date.includes(column)
         ) {
           // ex: true / false
-          if (String(value).toLowerCase() === 'true') {
-            this.queryBuilder.whereNot(column, null);
-          } else if (String(value).toLowerCase() === 'false') {
-            this.queryBuilder.where(column, null);
+          if (String(value).toLowerCase() == 'true') {
+            this.queryBuilder.andWhereNot(column, null);
+          } else if (String(value).toLowerCase() == 'false') {
+            this.queryBuilder.andWhere(column, null);
           }
         }
+
+        if (focus.enum.length > 0 && focus.enum.includes(column)) {
+          // ex: pending / success
+          this.queryBuilder.andWhere(column, value);
+        }
+
         if (focus.date_range.length > 0 && focus.date_range.includes(column)) {
           // ex: 2023-01-01>2023-12-31
           if (!String(value).includes('>')) return;
           const [start, end] = String(value).split('>');
           if (isDateFormat(start) && isDateFormat(end)) {
-            this.queryBuilder.whereBetween(column, [
+            this.queryBuilder.andWhereBetween(column, [
               new Date(start),
               new Date(end)
             ]);
@@ -207,18 +170,9 @@ class CustomQueryBuilder<T> {
   paginate = (
     per_page = 10,
     page = 1,
-    show_column = ['*'], // ['users.id', 'name', 'username']
+    show_column = ['*'],
     margin = 0
-  ): Promise<{
-    data: any[];
-    meta: {
-      total_data: number;
-      current_page: number;
-      per_page: number;
-      last_page: number;
-      margin?: number[];
-    };
-  }> => {
+  ): Promise<Pagination> => {
     // fine value
     if (!per_page || !isNumber(per_page) || per_page <= 0) {
       per_page = 10; // default
@@ -238,30 +192,29 @@ class CustomQueryBuilder<T> {
         }
       }
     }
-    if (!show_column || !isArray(show_column)) show_column = ['*'];
+
     if (per_page < 1) per_page = 1;
     if (page < 1) page = 1;
-
     const offset = (page - 1) * per_page;
+
+    const fix_show_column = show_column.map((column) => Database.raw(column));
     return Promise.all([
       this.queryBuilder.clone().count('* as count').first(),
       this.queryBuilder
-        .select(...show_column)
+        .select(...fix_show_column)
         .offset(offset)
         .limit(per_page)
-    ]).then(([total, rows]) => {
+    ]).then(([total, rows]: any) => {
       const last_page = Math.ceil(total.count / per_page);
 
-      /**
-       * @type {{ data: any[], meta: { total_data: number, current_page: number, per_page: number, last_page: number, margin?: number[] } }}
-       */
-      const pagination: any = {};
-      pagination.data = rows;
-      pagination.meta = {
-        total_data: total.count,
-        current_page: page,
-        per_page,
-        last_page
+      const pagination: Pagination = {
+        data: rows,
+        meta: {
+          total_data: total.count,
+          current_page: page,
+          per_page,
+          last_page
+        }
       };
       if (useMargin) {
         const margin_rate = margin * 2 + 1;
@@ -303,7 +256,7 @@ class CustomQueryBuilder<T> {
   };
 }
 
-const queryBuilder = knexInstance.select();
-const Database = new CustomQueryBuilder(queryBuilder);
+// const query = Database('test');
+// const test = new KnexExtension(query);
 
-export { DatabaseConnect, Database };
+export { DatabaseConnect, Database, KnexExtension };

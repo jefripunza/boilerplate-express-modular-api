@@ -1,9 +1,9 @@
 export enum OrderByEnum {
-  ASC = "ASC",
-  DESC = "DESC",
+  ASC = 'ASC',
+  DESC = 'DESC'
 }
 
-export type OrderByType = "ASC" | "DESC";
+export type OrderByType = 'ASC' | 'DESC';
 
 export interface IPaginationRequest {
   page?: string;

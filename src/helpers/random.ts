@@ -1,9 +1,9 @@
 const all_characters =
-  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
-const otp_characters = "0123456789";
+  'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+const otp_characters = '0123456789';
 
 export const Text = (length = 20) => {
-  let result = "";
+  let result = '';
   for (let i = 0; i < length; i++) {
     result += all_characters.charAt(
       Math.floor(Math.random() * all_characters.length)
@@ -13,7 +13,7 @@ export const Text = (length = 20) => {
 };
 
 export const OTP = (length = 4) => {
-  let result = "";
+  let result = '';
   for (let i = 0; i < length; i++) {
     result += otp_characters.charAt(
       Math.floor(Math.random() * otp_characters.length)

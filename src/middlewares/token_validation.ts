@@ -1,22 +1,22 @@
-import { Response, NextFunction } from "express";
-import { IRequestJoin } from "../contracts/request.contract";
+import { Response, NextFunction } from 'express';
+import { IRequestJoin } from '../contracts/request.contract';
 
-import * as jwt from "../utils/jsonwebtoken";
+import * as jwt from '../utils/jsonwebtoken';
 
 export default async (req: IRequestJoin, res: Response, next: NextFunction) => {
   try {
     let token = req.headers.authorization || req.cookies.token;
     if (!token) {
       return res.status(403).json({
-        message: "Authorization is required!",
+        message: 'Authorization is required!'
       });
     }
-    token = String(token).replace("Bearer ", "");
+    token = String(token).replace('Bearer ', '');
 
     const { error, message, data } = await jwt.verifyToken(token);
     if (error) {
       return res.status(error).json({
-        message,
+        message
       });
     }
 
@@ -30,11 +30,11 @@ export default async (req: IRequestJoin, res: Response, next: NextFunction) => {
       // new token on header
       token = jwt.createToken({
         id: data.id,
-        role: data.role,
+        role: data.role
       });
-      res.set("x-new-token", token);
-      res.cookie("token", token, {
-        httpOnly: true,
+      res.set('x-new-token', token);
+      res.cookie('token', token, {
+        httpOnly: true
       });
     }
 
@@ -42,7 +42,7 @@ export default async (req: IRequestJoin, res: Response, next: NextFunction) => {
     return next();
   } catch (error) {
     return res.status(500).json({
-      message: "internal server error",
+      message: 'internal server error'
     });
   }
 };

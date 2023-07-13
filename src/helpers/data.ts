@@ -13,7 +13,7 @@ function getCurrentWeekNumber() {
   return getWeekNumber(currentDate);
 }
 
-export const filterDataByWeek = (data: any[], date_selector = "created_at") => {
+export const filterDataByWeek = (data: any[], date_selector = 'created_at') => {
   let currentWeek = null;
   let currentWeekData = [];
   for (let i = 0; i < data.length; i++) {
