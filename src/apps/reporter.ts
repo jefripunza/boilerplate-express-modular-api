@@ -1,7 +1,10 @@
 /* eslint-disable no-console */
-import axios from '../utils/axios';
 
+import axios from '../utils/axios';
 import { Reporter, NODE_ENV } from '../environments';
+
+// ===================================================================
+// ===================================================================
 
 const sendLog = async (url: string, message: string) => {
   return await axios({
@@ -17,18 +20,22 @@ const sendLog = async (url: string, message: string) => {
   }).then((result) => result.data);
 };
 
+// ===================================================================
+// ===================================================================
+
 const margin_one = '=========================================================';
 const margin = `${margin_one}\n${margin_one}\n${margin_one}`;
 
-export const StartLogging = () => {
-  if (NODE_ENV != 'local') {
-    sendLog(
-      Reporter.GIT_URL,
-      `${margin}\n\nServer is Running on ${NODE_ENV}!\n${margin}`
-    );
-  }
-};
+if (NODE_ENV != 'local') {
+  sendLog(
+    Reporter.GIT_URL,
+    `${margin}\n\nServer is Running on ${NODE_ENV}!\n${margin}`
+  );
+}
+console.log(`\nStarting on ${NODE_ENV}...\n`);
 
+// ===================================================================
+// ===================================================================
 interface ITrace {
   from: string;
   error: Error;

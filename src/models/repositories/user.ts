@@ -1,5 +1,6 @@
 import { Database, IPaginationInit, KnexExtra } from '../../apps/knex';
-import { tables } from '../../configs';
+import { tables, user_roles } from '../../configs';
+import { createPromise } from '../../helpers/async';
 
 import * as encryption from '../../utils/encryption';
 
@@ -45,12 +46,21 @@ export const paginate = async (
   filter: any
 ) => {
   const init: IPaginationInit = {
-    sort: ['users.id', 'users.created_at'],
+    sort: [
+      'users.id',
+
+      'users.name',
+      'users.phone_number',
+      'users.role',
+
+      'users.created_at',
+      'users.updated_at',
+    ],
     filter: {
-      search: ['users.identity', 'users.ip_address'],
-      boolean: [],
+      search: ['users.name', 'users.phone_number'],
+      boolean: ['users.is_verify', 'users.is_block'],
       date_range: ['users.created_at', 'users.updated_at'],
-      enum: [],
+      enum: ['users.role'],
     },
   };
 
@@ -62,7 +72,7 @@ export const paginate = async (
   );
 
   const extra = new KnexExtra(query);
-  return await extra
+  const result = await extra
     .search(init.filter.search, search)
     .orderBy(init.sort, sort_by, order_by)
     .filter(filter, init.filter)
@@ -90,6 +100,21 @@ export const paginate = async (
       parseInt(page),
       2
     );
+
+  // create enum for option
+  if (init.filter.enum) {
+    init.filter.enum = await createPromise(init.filter.enum, async (column) => {
+      return {
+        column,
+        option: await Database(tables.users)
+          .whereNot('users.role', user_roles.superadmin)
+          .groupBy(column)
+          .pluck(column),
+      };
+    });
+  }
+
+  return { ...result, init };
 };
 
 export const isUsernameExist = async (username: string) => {

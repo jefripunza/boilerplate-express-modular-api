@@ -43,11 +43,7 @@ app.use(function (req: any, res, next) {
 app.disable('x-powered-by');
 app.use(cors());
 app.use(helmet());
-
-// static file
-app.use('/assets', express.static(path.join(project_root, 'assets', 'public')));
-app.use('/strict', express.static(path.join(project_root, 'assets', 'strict'))); // sementara
-
+// for data
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
@@ -104,5 +100,11 @@ Promise.resolve()
       });
     });
   });
+
+app.set('port', Server.PORT);
+server.on('listening', () =>
+  // eslint-disable-next-line no-console
+  console.log(`✈️  Server listening on http://localhost:${Server.PORT}/swagger`)
+);
 
 export { app, server };

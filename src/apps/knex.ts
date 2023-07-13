@@ -12,13 +12,13 @@ const Database = knex(KnexConfig.config);
 
 const DatabaseConnect = async (
   // eslint-disable-next-line @typescript-eslint/ban-types
-  cb: boolean | Function = false
+  start_server: boolean | Function = false
 ): Promise<void> => {
   Database.raw('SELECT 1')
     .then(() => {
       // eslint-disable-next-line no-console
-      console.info('✈️ Database connected');
-      if (cb && typeof cb === 'function') cb();
+      console.info('✈️  Database connected');
+      if (start_server && typeof start_server === 'function') start_server();
     })
     .catch((e) => {
       // eslint-disable-next-line no-console

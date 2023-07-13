@@ -18,4 +18,4 @@ RUN sed -i 's/localhost/host.docker.internal/g' .env
 
 EXPOSE 8080
 ENV NODE_ENV=development
-CMD ["yarn", "start:only"]
+CMD ["yarn", "start"]

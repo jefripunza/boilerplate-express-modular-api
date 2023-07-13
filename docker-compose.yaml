@@ -1,19 +1,14 @@
-version: "3.8"
+version: '3.8'
 services:
-  app:
-    container_name: express-modular-api
+  express-modular-api-dev:
     build:
       context: .
       dockerfile: Dockerfile
     restart: always
     ports:
-      - "8080:8080"
+      - '8080:8080'
     volumes:
-      # setup file or folder
-      - app-assets:/app/assets
+      - /mnt/storage/app-name-dev:/app/assets
     network_mode: bridge
     extra_hosts:
-      - "host.docker.internal:host-gateway"
-volumes:
-  app-assets:
-    external: false
+      - 'host.docker.internal:host-gateway'
