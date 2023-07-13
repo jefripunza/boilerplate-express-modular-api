@@ -17,7 +17,7 @@ RUN yarn swagger
 RUN sed -i 's/localhost/host.docker.internal/g' .env
 
 # 🔞 Delete Source Code
-RUN npx rimraf ./src && rm -rf src
+RUN npx rimraf ./src
 
 EXPOSE 8080
 ENV NODE_ENV=development
