@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable no-undef */
+import 'module-alias/register';
 
 import * as fs from 'fs';
 import * as path from 'path';
 import SwagInit from 'swagger-autogen';
 
-import { Swagger, Server } from './src/environments';
-import { modules_dir, swagger_json_file } from './src/paths';
+import { Swagger, Server } from './environments';
+import { modules_dir, swagger_json_file } from './paths';
 
 const swaggerAutogen = SwagInit();
 
@@ -54,7 +55,7 @@ const doc = {
 
 const endpointsFiles = fs
   .readdirSync(modules_dir)
-  .filter((filename) => filename !== 'index.js')
+  .filter((filename) => !String(filename).startsWith('index.'))
   .map((filename) => path.join(modules_dir, filename));
 
 swaggerAutogen(swagger_json_file, endpointsFiles, doc);

@@ -12,11 +12,6 @@ import * as jwt from '@/utils/jsonwebtoken';
 
 import token_validation from '@/middlewares/token_validation';
 
-const checkMobile = (req: Request) =>
-  ['dart'].some((slug) =>
-    String(req.headers['user-agent']).toLowerCase().includes(slug)
-  );
-
 const router: any = express.Router();
 const v1: any = express.Router();
 
@@ -124,7 +119,9 @@ v1.post('/login', async (req: Request, res: Response) => {
   */
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const isMobile = checkMobile(req);
+  const isMobile = ['dart'].some((slug) =>
+    String(req.headers['user-agent']).toLowerCase().includes(slug)
+  );
 
   const { username, password } = req.body;
 
@@ -220,7 +217,9 @@ v1.post('/token-validate/:mode', async (req: Request, res: Response) => {
   */
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const isMobile = checkMobile(req);
+  const isMobile = ['dart'].some((slug) =>
+    String(req.headers['user-agent']).toLowerCase().includes(slug)
+  );
 
   const { otp_secret, otp_code } = req.body;
 
