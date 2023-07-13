@@ -1,7 +1,7 @@
 import { Response, NextFunction } from 'express';
-import { IRequestJoin } from '../contracts/request.contract';
+import { IRequestJoin } from '@/contracts/request.contract';
 
-import * as User from '../models/repositories/user';
+import * as User from '@/models/repositories/user';
 
 export default async (req: IRequestJoin, res: Response, next: NextFunction) => {
   const id_user = req.user.id;

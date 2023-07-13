@@ -1,8 +1,8 @@
-import { Database, IPaginationInit, KnexExtra } from '../../apps/knex';
-import { tables, user_roles } from '../../configs';
-import { createPromise } from '../../helpers/async';
+import { Database, IPaginationInit, KnexExtra } from '@/apps/knex';
+import { tables, user_roles } from '@/configs';
+import { createPromise } from '@/helpers/async';
 
-import * as encryption from '../../utils/encryption';
+import * as encryption from '@/utils/encryption';
 
 const addresses = Database(tables.user_address)
   .select('id_user')

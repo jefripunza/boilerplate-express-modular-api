@@ -1,5 +1,5 @@
-import { Database, IPaginationInit, KnexExtra } from '../../apps/knex';
-import { tables } from '../../configs';
+import { Database, IPaginationInit, KnexExtra } from '@/apps/knex';
+import { tables } from '@/configs';
 
 export const list = async () => {
   return await Database(tables.histories)

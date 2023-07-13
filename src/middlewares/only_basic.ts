@@ -1,6 +1,6 @@
 import { Response, NextFunction } from 'express';
-import { IRequestJoin } from '../contracts/request.contract';
-import { user_roles } from '../configs';
+import { IRequestJoin } from '@/contracts/request.contract';
+import { user_roles } from '@/configs';
 
 export default (req: IRequestJoin, res: Response, next: NextFunction) => {
   if ([user_roles.superadmin, user_roles.basic].includes(req.user.role)) {

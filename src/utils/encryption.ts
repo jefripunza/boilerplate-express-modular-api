@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { Server } from '../environments';
+import { Server } from '@/environments';
 
 export const encode = (text: string) => {
   // AES256

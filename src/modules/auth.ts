@@ -1,16 +1,16 @@
 import { StatusCodes } from 'http-status-codes';
 import express, { Request, Response } from 'express';
-import { IRequestJoin } from '../contracts/request.contract';
-import * as reporter from '../apps/reporter';
+import { IRequestJoin } from '@/contracts/request.contract';
+import * as reporter from '@/apps/reporter';
 
-import { OTP_EXPIRED_MINUTE } from '../environments';
+import { OTP_EXPIRED_MINUTE } from '@/environments';
 
-import * as User from '../models/repositories/user';
+import * as User from '@/models/repositories/user';
 
-import * as random from '../helpers/random';
-import * as jwt from '../utils/jsonwebtoken';
+import * as random from '@/helpers/random';
+import * as jwt from '@/utils/jsonwebtoken';
 
-import token_validation from '../middlewares/token_validation';
+import token_validation from '@/middlewares/token_validation';
 
 const checkMobile = (req: Request) =>
   ['dart'].some((slug) =>

@@ -1,6 +1,6 @@
 import { Knex } from 'knex';
 
-import { tables } from '../../configs';
+import { tables } from '@/configs';
 
 export async function up(knex: Knex): Promise<void> {
   await knex.schema.createTable(tables.histories, function (table) {

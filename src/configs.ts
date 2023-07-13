@@ -1,7 +1,7 @@
 import { Knex as KnexInterface } from 'knex';
 
-import { migrations_dir } from './paths';
-import { Database, Server } from './environments';
+import { migrations_dir } from '@/paths';
+import { Database, Server } from '@/environments';
 
 export namespace Knex {
   export const config: KnexInterface.Config = {

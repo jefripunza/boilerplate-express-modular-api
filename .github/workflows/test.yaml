@@ -1,0 +1,48 @@
+name: 🚀 Deploy App...
+on:
+  push:
+    branches: ['master']
+jobs:
+  app-deploy:
+    name: 🚚 BackEnd (Dev) - Express Modular API
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🎉 Get latest code
+        uses: actions/checkout@v2
+
+      # ----------------------------------------------------------------------
+      # ----------------------------------------------------------------------
+      # ----------------------------------------------------------------------
+
+      - name: 📡 Docker Compose...
+        run: |
+          docker build -t my-docker-image .
+          docker run --rm my-docker-image
+
+      # ----------------------------------------------------------------------
+      # ----------------------------------------------------------------------
+      # ----------------------------------------------------------------------
+
+      - name: Dump GitHub context
+        if: success() || failure() || cancelled()
+        id: github_context_step
+        run: echo '${{ toJSON(github) }}'
+      - name: Dump job context
+        if: success() || failure() || cancelled()
+        run: echo '${{ toJSON(job) }}'
+      - name: Dump steps context
+        if: success() || failure() || cancelled()
+        run: echo '${{ toJSON(steps) }}'
+      - name: Dump runner context
+        if: success() || failure() || cancelled()
+        run: echo '${{ toJSON(runner) }}'
+      - name: Dump strategy context
+        if: success() || failure() || cancelled()
+        run: echo '${{ toJSON(strategy) }}'
+      - name: Dump matrix context
+        if: success() || failure() || cancelled()
+        run: echo '${{ toJSON(matrix) }}'
+
+      # ----------------------------------------------------------------------
+      # ----------------------------------------------------------------------
+      # ----------------------------------------------------------------------

@@ -1,5 +1,5 @@
-import { Database, KnexExtra, IPaginationInit } from '../../apps/knex';
-import { tables } from '../../configs';
+import { Database, KnexExtra, IPaginationInit } from '@/apps/knex';
+import { tables } from '@/configs';
 
 export const paginate = async (
   search: any,

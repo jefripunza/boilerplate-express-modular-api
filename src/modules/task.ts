@@ -1,11 +1,11 @@
 /* eslint-disable no-console */
 import express, { Response } from 'express';
-import { IRequestJoin } from '../contracts/request.contract';
+import { IRequestJoin } from '@/contracts/request.contract';
 
-import { Server } from '../environments';
+import { Server } from '@/environments';
 
-import token_validation from '../middlewares/token_validation';
-import only_superman from '../middlewares/only_superman';
+import token_validation from '@/middlewares/token_validation';
+import only_superman from '@/middlewares/only_superman';
 
 import cron from 'node-cron';
 

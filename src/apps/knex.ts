@@ -1,12 +1,12 @@
 import knex, { Knex } from 'knex';
-import { Knex as KnexConfig } from '../configs';
+import { Knex as KnexConfig } from '@/configs';
 
 import {
   isArray,
   isObject,
   isNumber,
   isDateFormat,
-} from '../helpers/validation';
+} from '@/helpers/validation';
 
 const Database = knex(KnexConfig.config);
 

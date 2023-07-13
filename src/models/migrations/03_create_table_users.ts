@@ -1,7 +1,7 @@
 import { Knex } from 'knex';
 
-import { tables, user_roles } from '../../configs';
-import * as encryption from '../../utils/encryption';
+import { tables, user_roles } from '@/configs';
+import * as encryption from '@/utils/encryption';
 
 export async function up(knex: Knex): Promise<void> {
   await knex.schema.createTable(tables.users, function (table) {

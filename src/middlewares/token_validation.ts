@@ -1,7 +1,7 @@
 import { Response, NextFunction } from 'express';
-import { IRequestJoin } from '../contracts/request.contract';
+import { IRequestJoin } from '@/contracts/request.contract';
 
-import * as jwt from '../utils/jsonwebtoken';
+import * as jwt from '@/utils/jsonwebtoken';
 
 export default async (req: IRequestJoin, res: Response, next: NextFunction) => {
   try {

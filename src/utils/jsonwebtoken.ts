@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
-import { Jwt } from '../environments';
-import { ITokenContent } from '../contracts/request.contract';
+import { Jwt } from '@/environments';
+import { ITokenContent } from '@/contracts/request.contract';
 
 export const createToken = (object: object) => {
   return jwt.sign(object, Jwt.SECRET_TOKEN, {

@@ -1,7 +1,7 @@
 import { Response, NextFunction } from 'express';
-import { IRequestJoin } from '../contracts/request.contract';
+import { IRequestJoin } from '@/contracts/request.contract';
 
-import * as Block from '../models/repositories/block';
+import * as Block from '@/models/repositories/block';
 
 export default async (req: IRequestJoin, res: Response, next: NextFunction) => {
   const { ip_address } = req;

@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import express from 'express';
-import { public_dir, strict_dir } from '../paths';
+import { public_dir, strict_dir } from '@/paths';
 
-import use_block from '../middlewares/use_block';
-import token_validation from '../middlewares/token_validation';
-import only_admin from '../middlewares/only_admin';
+import use_block from '@/middlewares/use_block';
+import token_validation from '@/middlewares/token_validation';
+import only_admin from '@/middlewares/only_admin';
 
 const app: any = express.Router();
 

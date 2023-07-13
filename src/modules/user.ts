@@ -2,18 +2,18 @@ import * as path from 'path';
 import { StatusCodes } from 'http-status-codes';
 import { UploadedFile } from 'express-fileupload';
 import express, { Response } from 'express';
-import { IRequestJoin } from '../contracts/request.contract';
-import * as reporter from '../apps/reporter';
+import { IRequestJoin } from '@/contracts/request.contract';
+import * as reporter from '@/apps/reporter';
 
-import * as User from '../models/repositories/user';
-import * as UserAddress from '../models/repositories/user_address';
+import * as User from '@/models/repositories/user';
+import * as UserAddress from '@/models/repositories/user_address';
 
-import { FileUploader } from '../configs';
-import { user_dir } from '../paths';
-import { newNameUpload } from '../helpers/convert';
+import { FileUploader } from '@/configs';
+import { user_dir } from '@/paths';
+import { newNameUpload } from '@/helpers/convert';
 
-import token_validation from '../middlewares/token_validation';
-import only_basic from '../middlewares/only_basic';
+import token_validation from '@/middlewares/token_validation';
+import only_basic from '@/middlewares/only_basic';
 
 const router: any = express.Router();
 const app: any = express.Router();

@@ -1,5 +1,5 @@
-import { Database } from '../../apps/knex';
-import { tables } from '../../configs';
+import { Database } from '@/apps/knex';
+import { tables } from '@/configs';
 
 export const list = async (id_user: number) => {
   return await Database(tables.user_address)

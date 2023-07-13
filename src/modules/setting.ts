@@ -1,12 +1,12 @@
 import { StatusCodes } from 'http-status-codes';
 import express, { Response } from 'express';
-import { IRequestJoin } from '../contracts/request.contract';
-import * as reporter from '../apps/reporter';
+import { IRequestJoin } from '@/contracts/request.contract';
+import * as reporter from '@/apps/reporter';
 
-import * as Setting from '../models/repositories/setting';
+import * as Setting from '@/models/repositories/setting';
 
-import token_validation from '../middlewares/token_validation';
-import only_admin from '../middlewares/only_admin';
+import token_validation from '@/middlewares/token_validation';
+import only_admin from '@/middlewares/only_admin';
 
 const router: any = express.Router();
 const app: any = express.Router();

@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 
-import axios from '../utils/axios';
-import { Reporter, NODE_ENV } from '../environments';
+import axios from '@/utils/axios';
+import { Reporter, NODE_ENV } from '@/environments';
 
 // ===================================================================
 // ===================================================================

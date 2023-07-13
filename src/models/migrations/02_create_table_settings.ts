@@ -1,7 +1,7 @@
 import { Knex } from 'knex';
 
-import { tables } from '../../configs';
-import { Swagger } from '../../environments';
+import { tables } from '@/configs';
+import { Swagger } from '@/environments';
 
 export async function up(knex: Knex): Promise<void> {
   await knex.schema.createTable(tables.settings, function (table) {
