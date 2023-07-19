@@ -29,21 +29,18 @@ export const paginate = async (
     },
   };
 
-  const query = Database(tables.histories).innerJoin(
-    tables.users,
-    'users.id',
-    'histories.id_user'
-  );
+  const query = Database(tables.histories)
+    .select(
+      'histories.id',
+      'histories.notes',
+      'users.name',
+      'users.phone_number'
+    )
+    .innerJoin(tables.users, 'users.id', 'histories.id_user');
   const extra = new KnexExtra(query);
   return await extra
     .search(init.filter.search, search)
     .orderBy(init.sort, sort_by, order_by)
     .filter(filter, init.filter)
-    .paginate(
-      // format data per row
-      ['histories.id', 'histories.notes', 'users.name', 'users.phone_number'],
-      parseInt(show),
-      parseInt(page),
-      2
-    );
+    .paginate(parseInt(show), parseInt(page), 2);
 };

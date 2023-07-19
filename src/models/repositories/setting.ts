@@ -21,27 +21,21 @@ export const paginate = async (
     },
   };
 
-  const query = Database(tables.histories);
+  const query = Database(tables.histories).select(
+    'settings.id',
+
+    'settings.key',
+    'settings.value',
+
+    'settings.created_at',
+    'settings.updated_at'
+  );
   const extra = new KnexExtra(query);
   return await extra
     .search(init.filter.search, search)
     .orderBy(init.sort, sort_by, order_by)
     .filter(filter, init.filter)
-    .paginate(
-      // format data per row
-      [
-        'settings.id',
-
-        'settings.key',
-        'settings.value',
-
-        'settings.created_at',
-        'settings.updated_at',
-      ],
-      parseInt(show),
-      parseInt(page),
-      2
-    );
+    .paginate(parseInt(show), parseInt(page), 2);
 };
 
 export const isKeyExist = async (key: string) => {

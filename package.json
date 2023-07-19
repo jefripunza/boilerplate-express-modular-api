@@ -21,15 +21,15 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "_moduleAliases": {
-    "@/configs": "build/configs",
-    "@/environments": "build/environments",
-    "@/paths": "build/paths",
-    "@/apps": "build/apps",
-    "@/contracts": "build/contracts",
-    "@/helpers": "build/helpers",
-    "@/middlewares": "build/middlewares",
-    "@/models/repositories": "build/models/repositories",
-    "@/utils": "build/utils"
+    "@/configs": "src/configs",
+    "@/environments": "src/environments",
+    "@/paths": "src/paths",
+    "@/apps": "src/apps",
+    "@/contracts": "src/contracts",
+    "@/helpers": "src/helpers",
+    "@/middlewares": "src/middlewares",
+    "@/models/repositories": "src/models/repositories",
+    "@/utils": "src/utils"
   },
   "dependencies": {
     "axios": "^1.4.0",

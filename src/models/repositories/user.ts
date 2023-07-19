@@ -64,42 +64,33 @@ export const paginate = async (
     },
   };
 
-  const query = Database(tables.users).leftJoin(
-    addresses,
-    'users.id',
-    '=',
-    'user_address_data.id_user'
-  );
+  const query = Database(tables.users)
+    .select(
+      'users.id',
+
+      'users.name',
+      'users.img_avatar',
+      'users.phone_number',
+      'users.role',
+
+      Database.raw(
+        `CAST(COALESCE(user_address_data.addresses, '[]') AS JSON) AS addresses`
+      ),
+
+      'users.is_verify',
+      'users.is_block',
+
+      'users.created_at',
+      'users.updated_at'
+    )
+    .leftJoin(addresses, 'users.id', '=', 'user_address_data.id_user');
 
   const extra = new KnexExtra(query);
   const result = await extra
     .search(init.filter.search, search)
     .orderBy(init.sort, sort_by, order_by)
     .filter(filter, init.filter)
-    .paginate(
-      // format data per row
-      [
-        'users.id',
-
-        'users.name',
-        'users.img_avatar',
-        'users.phone_number',
-        'users.role',
-
-        Database.raw(
-          `CAST(COALESCE(user_address_data.addresses, '[]') AS JSON) AS addresses`
-        ),
-
-        'users.is_verify',
-        'users.is_block',
-
-        'users.created_at',
-        'users.updated_at',
-      ],
-      parseInt(show),
-      parseInt(page),
-      2
-    );
+    .paginate(parseInt(show), parseInt(page), 2);
 
   // create enum for option
   if (init.filter.enum) {

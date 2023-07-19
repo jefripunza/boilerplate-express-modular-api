@@ -17,26 +17,20 @@ export const paginate = async (
     },
   };
 
-  const query = Database(tables.blocks);
+  const query = Database(tables.blocks).select([
+    'blocks.id', // foreign key
+
+    'blocks.identity',
+    'blocks.ip_address',
+
+    'blocks.created_at',
+  ]);
   const extra = new KnexExtra(query);
   return await extra
     .search(init.filter.search, search)
     .orderBy(init.sort, sort_by, order_by)
     .filter(filter, init.filter)
-    .paginate(
-      // format data per row
-      [
-        'blocks.id', // foreign key
-
-        'blocks.identity',
-        'blocks.ip_address',
-
-        'blocks.created_at',
-      ],
-      parseInt(show),
-      parseInt(page),
-      2
-    );
+    .paginate(parseInt(show), parseInt(page), 2);
 };
 
 export const whereIdentity = async (identity: string) => {

@@ -24,6 +24,10 @@ npx rimraf .git
 express-modular-api > project-name
 ```
 - copy .env.example to .env , and change information
+- delete github action not useable (Optional) :
+```
+test-docker.yaml
+```
 - run development :
 ```bash
 yarn dev

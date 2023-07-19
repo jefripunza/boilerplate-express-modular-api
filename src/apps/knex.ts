@@ -7,6 +7,7 @@ import {
   isNumber,
   isDateFormat,
 } from '@/helpers/validation';
+import { createPromise } from '@/helpers/async';
 
 const Database = knex(KnexConfig.config);
 
@@ -15,7 +16,14 @@ const DatabaseConnect = async (
   start_server: boolean | Function = false
 ): Promise<void> => {
   Database.raw('SELECT 1')
-    .then(() => {
+    .then(async () => {
+      const queries = [
+        `SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));`,
+        `SET SESSION sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));`,
+      ];
+      await createPromise(queries, async (query) => {
+        await Database.raw(query);
+      });
       // eslint-disable-next-line no-console
       console.info('✈️  Database connected');
       if (start_server && typeof start_server === 'function') start_server();
@@ -180,12 +188,7 @@ class KnexExtra<TRecord extends object = any, TResult = unknown[]> {
     return this; // next...
   };
 
-  paginate = (
-    show_column: any[],
-    per_page = 10,
-    page = 1,
-    margin = 0
-  ): Promise<IPagination> => {
+  paginate = (per_page = 10, page = 1, margin = 0): Promise<IPagination> => {
     // fine value
     if (!per_page || !isNumber(per_page) || per_page <= 0) {
       per_page = 10; // default
@@ -206,17 +209,11 @@ class KnexExtra<TRecord extends object = any, TResult = unknown[]> {
       }
     }
 
-    const show_column_fix = show_column.map((column) =>
-      typeof column == 'string' ? Database.raw(column) : column
-    );
     if (per_page < 1) per_page = 1;
     if (page < 1) page = 1;
     return Promise.all([
-      this.queryBuilder.clone().count('* AS count').first(),
-      this.queryBuilder
-        .select(...show_column_fix)
-        .offset((page - 1) * per_page)
-        .limit(per_page),
+      this.queryBuilder.clone().clearSelect().count('* AS count').first(),
+      this.queryBuilder.offset((page - 1) * per_page).limit(per_page),
     ]).then(([total, rows]: any) => {
       const last_page = Math.ceil(total.count / per_page);
 

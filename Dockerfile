@@ -14,7 +14,8 @@ RUN yarn build
 RUN yarn swagger
 
 # 💯 Last Configuration
-RUN sed -i 's/localhost/host.docker.internal/g' .env
+RUN sed -i 's#localhost#host.docker.internal#g' .env
+RUN sed -i 's#"src/#"build/#g' package.json
 
 # 🔞 Delete Source Code
 RUN npx rimraf ./src
